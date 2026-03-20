@@ -1,0 +1,200 @@
+---
+title: "KODAQS Academy | Course D2 Survey"
+subtitle: "*Assignment Task Group USA*"
+
+date: today
+date-format: "DD.MM.YYYY"
+date-modified	: last-modified
+author:
+  - name: Josefina Sommer
+  - name: Elnari Potgieter
+  - name: David Simon
+  - name: Ana Cristancho
+  - name: Lukas Rädle
+  - name: Erik Paessler
+format:
+  html:
+    code-overflow: scroll
+    code-copy: true
+    toc: true
+    toc-location: left
+    theme: cosmo
+    html-math-method: katex
+---
+
+
+
+## Introduction (ALL)
+
+This is an R-Quarto template which can be used for your final assignment task of KODAQS Academy, Course D2 Survey. [How to create citable article](https://quarto.org/docs/authoring/create-citeable-articles.html)<br>
+It contains prepared sections for each kind of data quality indicators. Choose an appropriate—for data quality related research questions—instrument from the construct ***Trust*** or ***Attitude***.
+For each data quality indicator, you have to select indices that are part of the dataset and/or can be calculated, and specify whether and how you will flag/filter cases. 
+Our final assignment task contains parts that should be worked on in a collaborative way (ALL) and parts that should worked on by individual team members (YOUR NAME).
+Each teammate should be responsible for at least one indicator section.
+
+
+
+::: {.callout-caution appearance="default"}
+
+## Pay Attention Please!
+For our last WT prepare a short ppt-presentation (5-10 min max.) where you outline
+your analysis strategy (i.e. identified DQIs, and flagging/filtering rules) and show first findings/results. The preparation for and presention/participation on the weekly touchpoint is mandatory and weighs one third of your individual assignment grade.
+**WEEKLY TOUCHPOINT (mandatory) will take place on June 5th, 2025, 11–12 am CET**
+
+:::
+
+
+
+## Data Preparation (ALL)
+
+In a first step you have to define your R setup (e.g., install und load relevant packages) and need to read in the dataset. Do your basic cleanup and wrangling here (e.g. filtering for your country group, selection of used variables etc.). 
+
+```{r}
+####  ------------- Load Packages ------------- ####
+library(here)           # find files
+library(tidyverse)      # data management
+library(skimr)          # descriptives
+library(labelled)       # data labels
+
+####  ------------- Load Packages ------------- ####
+
+# We use the analysis-ready dataset (ds_final, N = 69,534), including post-stratification weights: https://osf.io/5c3qd/wiki?wiki=fqmdn
+data <- read.csv(here("00_data/ds_final.csv"), sep = ";") %>%
+  filter(COUNTRY_CODE == "USA")
+
+####  ------------ Compute Indices ------------ ####
+
+# SCIPOP_goertz: Science-related populist attitudes
+
+# 8 items on 4 dimensions, measured with 5-point scales (1 = strongly disagree to 5 = strongly agree; Mede, 
+# Schäfer, & Füchslin, 2021), aggregated with the Goertz approach (Wuttke et al., 2020)
+
+# Compute overall and dimension scores
+
+data <- data %>%
+  mutate(
+    SCIPOP_PPL_m = rowMeans(across(c(SCIPOP_common, SCIPOP_good)), na.rm = TRUE),
+    SCIPOP_ELI_m = rowMeans(across(c(SCIPOP_advantage, SCIPOP_cahoots)), na.rm = TRUE),
+    SCIPOP_DEC_m = rowMeans(across(c(SCIPOP_influence, SCIPOP_involved)), na.rm = TRUE),
+    SCIPOP_TRU_m = rowMeans(across(c(SCIPOP_lifeexp, SCIPOP_rely)), na.rm = TRUE),
+    SCIPOP_goertz = pmin(SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, na.rm = TRUE)
+  )
+
+data <- labelled::set_variable_labels(
+  data,
+  SCIPOP_goertz = "Science-related populist attitudes: overall (Goertz score)",
+  SCIPOP_PPL_m = "Science-related populist attitudes: conceptions of the ordinary people (mean)",
+  SCIPOP_ELI_m = "Science-related populist attitudes: conceptions of the academic elite (mean)",
+  SCIPOP_DEC_m = "Science-related populist attitudes: demands for decision-making sovereignty (mean)",
+  SCIPOP_TRU_m = "Science-related populist attitudes: demands for truth-speaking sovereignty (mean)"
+)
+
+# Gender
+data <- data %>%
+  mutate(DEM_GENDER = as.factor(DEM_GENDER))
+```
+
+
+)## Descriptive Analysis (ALL)
+
+Provide basic descriptive statistics for your (sub)sample and instrument(s).
+
+```{r}
+data %>%
+  select(DEM_AGE, DEM_GENDER,
+         SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, SCIPOP_goertz) %>%
+  skim()
+```
+
+
+## Attention Checks (YOUR NAME)
+
+The first kind of data quality indicators are check items. What check items are provided in the dataset and did participants pass the check?
+
+```{r}
+
+
+
+```
+
+
+## Para Data (YOUR NAME)
+
+The second kind of data quality indicators are para data. What kind of para data can you find in the data? Show with an example how this type of variable can be used for DQA! 
+
+```{r}
+
+
+
+```
+
+
+
+## Missing Data (YOUR NAME)
+
+The third kind of data quality indicators are missing data. How much data is missing, which data missing pattern occurs and are there cases with many missing data? (in respect to your choosen instrument(s) / variable(s)).
+
+```{r}
+
+
+
+```
+
+
+
+## Response Distributions (YOUR NAME)
+
+The fourth kind of data quality indicators are response distributions. Which indicators do you deem relevant and which criterion do you use for flagging?
+
+```{r}
+
+
+
+```
+
+
+
+## Response Styles (YOUR NAME)
+
+The last kind of data quality indicators are response styles. Which style(s) do you want to focus on and how do you flag concerning cases?
+
+```{r}
+
+
+
+```
+
+## All together (ALL)
+
+Now that you have different flags you may want to combine them. Which combinations do you deem suitable? And how to (partly) filter the identified cases?
+
+```{r}
+
+
+
+```
+
+## Discuss (ALL)
+
+Discuss central findings shortly! Make some statements on your final decision in respect to include/exclude rules (cutoffs/thresholds/filter combination), data loss, consequences for planned analyses, and any notable what you like to adress.
+
+
+## References (ALL)
+
+Place citable refs (used packages and literature) here.
+[How to add appendices](https://quarto.org/docs/authoring/appendices.html)
+
+
+::: {.callout-important appearance="default"}
+
+## Pay Attention Please!
+For final submission upload your prepared Quarto document and an exported html-file 
+into Moodle, week 8, section "Final Assignment Course D2 Survey LU8.1".
+**FINAL DEADLINE will be June 20th, 2025, sharp!**
+
+:::
+
+<span style="color:#1E8CC8;">**Good luck and see you next Thursday (June 5th) on our last weekly touchpoint!**</span>👋
+
+
+
