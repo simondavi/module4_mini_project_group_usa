@@ -14,8 +14,12 @@ author:
   - name: Erik Paessler
 format:
   html:
+    echo: true
+    warning: false
+    message: false 
     code-overflow: scroll
     code-copy: true
+    code-fold: false
     toc: true
     toc-location: left
     theme: cosmo
@@ -49,6 +53,7 @@ your analysis strategy (i.e. identified DQIs, and flagging/filtering rules) and 
 
 In a first step you have to define your R setup (e.g., install und load relevant packages) and need to read in the dataset. Do your basic cleanup and wrangling here (e.g. filtering for your country group, selection of used variables etc.). 
 
+### Load Packages and Read Data
 ```{r}
 ####  ------------- Load Packages ------------- ####
 library(here)           # find files
@@ -61,7 +66,10 @@ library(labelled)       # data labels
 # We use the analysis-ready dataset (ds_final, N = 69,534), including post-stratification weights: https://osf.io/5c3qd/wiki?wiki=fqmdn
 data <- read.csv(here("00_data/ds_final.csv"), sep = ";") %>%
   filter(COUNTRY_CODE == "USA")
+```
 
+### Compute Indices
+```{r}
 ####  ------------ Compute Indices ------------ ####
 
 # SCIPOP_goertz: Science-related populist attitudes
@@ -95,7 +103,7 @@ data <- data %>%
 ```
 
 
-)## Descriptive Analysis (ALL)
+## Descriptive Analysis (ALL)
 
 Provide basic descriptive statistics for your (sub)sample and instrument(s).
 

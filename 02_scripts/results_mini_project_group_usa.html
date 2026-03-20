@@ -86,7 +86,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#introduction-all" id="toc-introduction-all" class="nav-link active" data-scroll-target="#introduction-all">Introduction (ALL)</a></li>
-  <li><a href="#data-preparation-all" id="toc-data-preparation-all" class="nav-link" data-scroll-target="#data-preparation-all">Data Preparation (ALL)</a></li>
+  <li><a href="#data-preparation-all" id="toc-data-preparation-all" class="nav-link" data-scroll-target="#data-preparation-all">Data Preparation (ALL)</a>
+  <ul class="collapse">
+  <li><a href="#load-packages-and-read-data" id="toc-load-packages-and-read-data" class="nav-link" data-scroll-target="#load-packages-and-read-data">Load Packages and Read Data</a></li>
+  <li><a href="#compute-indices" id="toc-compute-indices" class="nav-link" data-scroll-target="#compute-indices">Compute Indices</a></li>
+  </ul></li>
+  <li><a href="#descriptive-analysis-all" id="toc-descriptive-analysis-all" class="nav-link" data-scroll-target="#descriptive-analysis-all">Descriptive Analysis (ALL)</a></li>
   <li><a href="#attention-checks-your-name" id="toc-attention-checks-your-name" class="nav-link" data-scroll-target="#attention-checks-your-name">Attention Checks (YOUR NAME)</a></li>
   <li><a href="#para-data-your-name" id="toc-para-data-your-name" class="nav-link" data-scroll-target="#para-data-your-name">Para Data (YOUR NAME)</a></li>
   <li><a href="#missing-data-your-name" id="toc-missing-data-your-name" class="nav-link" data-scroll-target="#missing-data-your-name">Missing Data (YOUR NAME)</a></li>
@@ -165,100 +170,66 @@ Pay Attention Please!
 <section id="data-preparation-all" class="level2">
 <h2 class="anchored" data-anchor-id="data-preparation-all">Data Preparation (ALL)</h2>
 <p>In a first step you have to define your R setup (e.g., install und load relevant packages) and need to read in the dataset. Do your basic cleanup and wrangling here (e.g.&nbsp;filtering for your country group, selection of used variables etc.).</p>
+<section id="load-packages-and-read-data" class="level3">
+<h3 class="anchored" data-anchor-id="load-packages-and-read-data">Load Packages and Read Data</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------- Load Packages ------------- ####</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)           <span class="co"># find files</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>here() starts at C:/Users/simon3/Documents/04_Sonstiges/05_Fortbildungen/KODAQS/module4b_tools_workflows/module4_mini_project_group_usa</code></pre>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)           <span class="co"># find files</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)      <span class="co"># data management</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)          <span class="co"># descriptives</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)       <span class="co"># data labels</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------- Load Packages ------------- ####</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># We use the analysis-ready dataset (ds_final, N = 69,534), including post-stratification weights: https://osf.io/5c3qd/wiki?wiki=fqmdn</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"00_data/ds_final.csv"</span>), <span class="at">sep =</span> <span class="st">";"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(COUNTRY_CODE <span class="sc">==</span> <span class="st">"USA"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)      <span class="co"># data management</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Paket 'tidyverse' wurde unter R Version 4.4.3 erstellt</code></pre>
+</section>
+<section id="compute-indices" class="level3">
+<h3 class="anchored" data-anchor-id="compute-indices">Compute Indices</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------ Compute Indices ------------ ####</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># SCIPOP_goertz: Science-related populist attitudes</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 8 items on 4 dimensions, measured with 5-point scales (1 = strongly disagree to 5 = strongly agree; Mede, </span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Schäfer, &amp; Füchslin, 2021), aggregated with the Goertz approach (Wuttke et al., 2020)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute overall and dimension scores</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_PPL_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_common, SCIPOP_good)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_ELI_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_advantage, SCIPOP_cahoots)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_DEC_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_influence, SCIPOP_involved)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_TRU_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_lifeexp, SCIPOP_rely)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_goertz =</span> <span class="fu">pmin</span>(SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> labelled<span class="sc">::</span><span class="fu">set_variable_labels</span>(</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  data,</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_goertz =</span> <span class="st">"Science-related populist attitudes: overall (Goertz score)"</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_PPL_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the ordinary people (mean)"</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_ELI_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the academic elite (mean)"</span>,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_DEC_m =</span> <span class="st">"Science-related populist attitudes: demands for decision-making sovereignty (mean)"</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_TRU_m =</span> <span class="st">"Science-related populist attitudes: demands for truth-speaking sovereignty (mean)"</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Gender</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEM_GENDER =</span> <span class="fu">as.factor</span>(DEM_GENDER))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Paket 'ggplot2' wurde unter R Version 4.4.3 erstellt</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Paket 'tibble' wurde unter R Version 4.4.3 erstellt</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Paket 'tidyr' wurde unter R Version 4.4.3 erstellt</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Paket 'readr' wurde unter R Version 4.4.3 erstellt</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Paket 'stringr' wurde unter R Version 4.4.3 erstellt</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Paket 'forcats' wurde unter R Version 4.4.3 erstellt</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.4     ✔ readr     2.1.6
-✔ forcats   1.0.1     ✔ stringr   1.6.0
-✔ ggplot2   4.0.1     ✔ tibble    3.3.1
-✔ lubridate 1.9.3     ✔ tidyr     1.3.2
-✔ purrr     1.0.2     </code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()
-ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)          <span class="co"># descriptives</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Paket 'skimr' wurde unter R Version 4.4.3 erstellt</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)       <span class="co"># data labels</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Paket 'labelled' wurde unter R Version 4.4.3 erstellt</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------- Load Packages ------------- ####</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># We use the analysis-ready dataset (ds_final, N = 69,534), including post-stratification weights: https://osf.io/5c3qd/wiki?wiki=fqmdn</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"00_data/ds_final.csv"</span>), <span class="at">sep =</span> <span class="st">";"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(COUNTRY_CODE <span class="sc">==</span> <span class="st">"USA"</span>)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------ Compute Indices ------------ ####</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># SCIPOP_goertz: Science-related populist attitudes</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 8 items on 4 dimensions, measured with 5-point scales (1 = strongly disagree to 5 = strongly agree; Mede, </span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Schäfer, &amp; Füchslin, 2021), aggregated with the Goertz approach (Wuttke et al., 2020)</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute overall and dimension scores</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_PPL_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_common, SCIPOP_good)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_ELI_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_advantage, SCIPOP_cahoots)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_DEC_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_influence, SCIPOP_involved)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_TRU_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_lifeexp, SCIPOP_rely)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_goertz =</span> <span class="fu">pmin</span>(SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> labelled<span class="sc">::</span><span class="fu">set_variable_labels</span>(</span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>  data,</span>
-<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_goertz =</span> <span class="st">"Science-related populist attitudes: overall (Goertz score)"</span>,</span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_PPL_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the ordinary people (mean)"</span>,</span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_ELI_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the academic elite (mean)"</span>,</span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_DEC_m =</span> <span class="st">"Science-related populist attitudes: demands for decision-making sovereignty (mean)"</span>,</span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_TRU_m =</span> <span class="st">"Science-related populist attitudes: demands for truth-speaking sovereignty (mean)"</span></span>
-<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Gender</span></span>
-<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEM_GENDER =</span> <span class="fu">as.factor</span>(DEM_GENDER))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>)## Descriptive Analysis (ALL)</p>
+</section>
+</section>
+<section id="descriptive-analysis-all" class="level2">
+<h2 class="anchored" data-anchor-id="descriptive-analysis-all">Descriptive Analysis (ALL)</h2>
 <p>Provide basic descriptive statistics for your (sub)sample and instrument(s).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(DEM_AGE, DEM_GENDER,</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>         SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, SCIPOP_goertz) <span class="sc">%&gt;%</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">skim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(DEM_AGE, DEM_GENDER,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>         SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, SCIPOP_goertz) <span class="sc">%&gt;%</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">skim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <caption>Data summary</caption>
