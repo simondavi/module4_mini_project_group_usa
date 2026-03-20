@@ -109,8 +109,9 @@ Provide basic descriptive statistics for your (sub)sample and instrument(s).
 
 ```{r}
 data %>%
-  select(DEM_AGE, DEM_GENDER,
-         SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, SCIPOP_goertz) %>%
+  select(DEM_AGE, DEM_GENDER, # demographics
+         SCIPOP_common, SCIPOP_good, SCIPOP_advantage, SCIPOP_cahoots, SCIPOP_influence, SCIPOP_involved, SCIPOP_lifeexp, SCIPOP_rely,# items
+         SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, SCIPOP_goertz) %>% # scales
   skim()
 ```
 

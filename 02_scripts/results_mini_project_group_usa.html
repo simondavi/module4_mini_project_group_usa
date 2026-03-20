@@ -227,9 +227,10 @@ Pay Attention Please!
 <p>Provide basic descriptive statistics for your (sub)sample and instrument(s).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(DEM_AGE, DEM_GENDER,</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>         SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, SCIPOP_goertz) <span class="sc">%&gt;%</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">skim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(DEM_AGE, DEM_GENDER, <span class="co"># demographics</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>         SCIPOP_common, SCIPOP_good, SCIPOP_advantage, SCIPOP_cahoots, SCIPOP_influence, SCIPOP_involved, SCIPOP_lifeexp, SCIPOP_rely,<span class="co"># items</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>         SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, SCIPOP_goertz) <span class="sc">%&gt;%</span> <span class="co"># scales</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">skim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <caption>Data summary</caption>
@@ -244,7 +245,7 @@ Pay Attention Please!
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Number of columns</td>
-<td style="text-align: left;">7</td>
+<td style="text-align: left;">15</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">_______________________</td>
@@ -260,7 +261,7 @@ Pay Attention Please!
 </tr>
 <tr class="odd">
 <td style="text-align: left;">numeric</td>
-<td style="text-align: left;">6</td>
+<td style="text-align: left;">14</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">________________________</td>
@@ -306,7 +307,7 @@ Pay Attention Please!
 <p><strong>Variable type: numeric</strong></p>
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 17%">
+<col style="width: 20%">
 <col style="width: 12%">
 <col style="width: 17%">
 <col style="width: 7%">
@@ -346,6 +347,110 @@ Pay Attention Please!
 <td style="text-align: right;">62.0</td>
 <td style="text-align: right;">81</td>
 <td style="text-align: left;">▆▇▆▆▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SCIPOP_common</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.67</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">5.0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▁▂▇▇▆</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SCIPOP_good</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.57</td>
+<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▁▂▇▆▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SCIPOP_advantage</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.04</td>
+<td style="text-align: right;">1.33</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▅▅▇▆▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SCIPOP_cahoots</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.18</td>
+<td style="text-align: right;">1.36</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▅▆▇▆▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SCIPOP_influence</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.34</td>
+<td style="text-align: right;">1.21</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▂▃▇▆▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SCIPOP_involved</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.47</td>
+<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▂▃▇▇▆</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SCIPOP_lifeexp</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.28</td>
+<td style="text-align: right;">1.24</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▂▃▇▆▅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SCIPOP_rely</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3.19</td>
+<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2.0</td>
+<td style="text-align: right;">3.0</td>
+<td style="text-align: right;">4.0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">▃▅▇▆▆</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">SCIPOP_PPL_m</td>
