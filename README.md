@@ -7,8 +7,8 @@ The naming scheme of the project folders is as follows:
 ```
 __00_data/             # Data
 __02_scripts/          # Analysis code (Quarto document)
-__03_output/           # Generated outputs
-__04_documentation/    # Scale documentation
+__01_output/           # Generated outputs
+__02_documentation/    # Questionnaire documentation
 ```
 
 ## Additional Files
