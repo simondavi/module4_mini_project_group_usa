@@ -61,9 +61,18 @@ library(tidyverse)      # data management
 library(skimr)          # descriptives
 library(labelled)       # data labels
 
-####  ------------- Load Packages ------------- ####
+####  ------------- read Data ------------- ####
 
-# We use the analysis-ready dataset (ds_final, N = 69,534), including post-stratification weights: https://osf.io/5c3qd/wiki?wiki=fqmdn
+# There are two versions of the data:
+# 
+# data_raw: The raw dataset (N = 167,101) before any cleaning and transformations.
+#
+# data: The analysis-ready dataset (N = 69,534), including post-stratification weights.
+# =  Analysis-ready dataset (ds_final, N = 69,534), including post-stratification weights: https://osf.io/5c3qd/wiki?wiki=fqmdn
+
+data_raw <- read.csv(here("00_data/ds_full.csv"), sep = ";") %>%
+  filter(COUNTRY_CODE == "USA")
+
 data <- read.csv(here("00_data/ds_final.csv"), sep = ";") %>%
   filter(COUNTRY_CODE == "USA")
 ```
@@ -116,12 +125,26 @@ data %>%
 ```
 
 
-## Attention Checks (YOUR NAME)
+## Attention Checks (David)
 
 The first kind of data quality indicators are check items. What check items are provided in the dataset and did participants pass the check?
 
 ```{r}
+data$ATTCHECK_NUMBER <- data$attcheck1
+data$ATTCHECK_RES <- data$attcheck2
 
+attcheck1.fails <- function(attcheck1){
+  n_valid <- sum(!is.na(attcheck1), na.rm = T)
+  n_fails <- sum(attcheck1 != "213", na.rm = T)
+  return((1 - ((n_valid - n_fails) / n_valid)) * 100)
+}
+
+
+attcheck2.fails <- function(attcheck2){
+  n_valid <- sum(!is.na(attcheck2), na.rm = T)
+  n_fails <- sum(attcheck2 %in% 2:5, na.rm = T) + sum(attcheck2 == -99, na.rm = T)
+  return((1 - ((n_valid - n_fails) / n_valid)) * 100)
+}
 
 
 ```
