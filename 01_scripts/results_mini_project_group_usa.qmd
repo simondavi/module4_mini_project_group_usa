@@ -61,21 +61,92 @@ library(tidyverse)      # data management
 library(skimr)          # descriptives
 library(labelled)       # data labels
 
-####  ------------- read Data ------------- ####
+####  ------------- Read Data ------------- ####
 
-# There are two versions of the data:
+# There are two versions of the data (!!!):
 # 
 # data_raw: The raw dataset (N = 167,101) before any cleaning and transformations.
 #
-# data: The analysis-ready dataset (N = 69,534), including post-stratification weights.
-# =  Analysis-ready dataset (ds_final, N = 69,534), including post-stratification weights: https://osf.io/5c3qd/wiki?wiki=fqmdn
+# data: The analysis-ready dataset (N = 69,534), including post-stratification weights:https://osf.io/5c3qd/wiki?wiki=fqmdn
 
 data_raw <- read.csv(here("00_data/ds_full.csv"), sep = ";") %>%
   filter(COUNTRY_CODE == "USA")
 
+# raw daat needs to be processed (a liitle bit)
+# Source: https://osf.io/5c3qd/files/xz8bw
+
+# (1.)  Exclude incomplete records (all respondents who did not reach the last page)
+data_raw_tmp <- data_raw %>%
+  filter(!is.na(DEM_RESIDENCE)) %>%
+  copy_labels(data_raw)
+
+data_raw <- data_raw_tmp
+
+# (2.) Identify and exclude duplicate completes
+
+# Initialize ID data (stored in separate rds file)
+ds_id <- read.csv(here("00_data/ds_id.csv"), sep = ";") 
+ds_main <- data_raw 
+
+# Show cases with duplicate IDs
+left_join(ds_main, ds_id, by = "ID_QUALTRICS") %>%
+  filter(!is.na(ID_POLLCMPNY)) %>%
+  add_count(ID_POLLCMPNY) %>%
+  filter(n != 1) %>%
+  arrange(COUNTRY_NAME, LAB)
+
+
+# Show duplicate IDs per country and lab
+left_join(ds_main, ds_id, by = "ID_QUALTRICS") %>% 
+  filter(!is.na(ID_POLLCMPNY)) %>%
+  add_count(ID_POLLCMPNY) %>%
+  filter(n != 1) %>%
+  group_by(LAB, COUNTRY_NAME, ID_POLLCMPNY) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  arrange(COUNTRY_NAME, LAB) 
+
+
+# Show number of duplicate IDs per country and lab
+left_join(ds_main, ds_id, by = "ID_QUALTRICS") %>%
+  filter(!is.na(ID_POLLCMPNY)) %>%
+  add_count(ID_POLLCMPNY) %>%
+  group_by(LAB, COUNTRY_NAME, ID_POLLCMPNY) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(LAB, COUNTRY_NAME) %>%
+  summarise(duplicates = sum(count - 1), .groups = "drop") %>%
+  arrange(COUNTRY_NAME, LAB) %>%
+  print(n = 79)
+
+
+# Retain only first response and delete all other
+ds_main_tmp <- left_join(ds_main, ds_id, by = "ID_QUALTRICS") %>%
+  mutate(ID_POLLCMPNY1 = case_when(is.na(ID_POLLCMPNY) ~ ID_QUALTRICS, TRUE ~ as.character(ID_POLLCMPNY))) %>%
+  group_by(ID_POLLCMPNY1) %>%
+  slice_min(Recorded, n = 1) %>%
+  mutate(ID_POLLCMPNY2 = ifelse(startsWith(ID_POLLCMPNY1, "R_"), NA_character_, ID_POLLCMPNY1)) %>%
+  ungroup() %>%
+  arrange(COUNTRY_CODE, LAB) %>%
+  copy_labels(ds_main)
+
+# Confirm that there are no duplicate completes (empty tibble)
+ds_main_tmp %>% 
+  filter(!is.na(ID_POLLCMPNY)) %>%
+  group_by(ID_POLLCMPNY1) %>% 
+  summarise(n = n()) %>% 
+  filter(n > 1)
+
+data_raw <- ds_main_tmp
+
+
+
+
+
+
 data <- read.csv(here("00_data/ds_final.csv"), sep = ";") %>%
   filter(COUNTRY_CODE == "USA")
 ```
+
+*Cave: Not all calculations can be done with the pre-processed data!*
 
 ### Compute Indices
 ```{r}
@@ -110,7 +181,6 @@ data <- labelled::set_variable_labels(
 data <- data %>%
   mutate(DEM_GENDER = as.factor(DEM_GENDER))
 ```
-
 
 ## Descriptive Analysis (ALL)
 
