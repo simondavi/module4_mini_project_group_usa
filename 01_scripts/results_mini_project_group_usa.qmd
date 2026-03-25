@@ -113,16 +113,15 @@ rm(ds_id)
 rm(data_raw_tmp)
 
 # (3.) Exclude outlier values for age
-data_raw <- data_raw %>%
-  mutate(
-    DEM_AGE = case_when(
-      DEM_AGE < 18 | DEM_AGE > 100 ~ NA_real_,
-      TRUE ~ DEM_AGE
-    )
-  )
-
 # % outliers
-per_out <- mean(!(data_raw$DEM_AGE %in% 18:100) & !is.na(data_raw$DEM_AGE)) * 100
+per_out <- mean(data_raw$DEM_AGE < 18 | data_raw$DEM_AGE > 100, na.rm = TRUE) * 100
+
+# = none
+
+# (4.) Gender (1 = male)
+data_raw <- data_raw  %>%
+  mutate(DEM_GENDER = ifelse(DEM_GENDER == "Male", 1, 0)) %>%
+  mutate(DEM_GENDER = as.factor(DEM_GENDER))
 
 # data
 data <- read.csv(here("00_data/ds_final.csv"), sep = ";") %>%
@@ -143,9 +142,8 @@ Not all calculations can be performed using the pre-processed data, as some info
 
 1. Respondents who did not reach the last page were excluded: `r round(per_rem1, 2)`%
 2. Duplicate respondents were excluded: `r round(per_rem2, 2)`%
-3. Age values outside the range of 18 to 100 were set to NA: `r round(per_out, 2)`%
-4. Gender was temporarily recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
-5. tbc
+3. Gender was temporarily recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
+4. tbc
 
 *Note to the group: I think most calculations should be done with the file 'data_raw'.*
 
@@ -178,10 +176,6 @@ data_raw <- labelled::set_variable_labels(
   SCIPOP_TRU_m = "Science-related populist attitudes: demands for truth-speaking sovereignty (mean)"
 )
 
-# Gender (1 = male)
-data_raw <- data_raw  %>%
-  mutate(DEM_GENDER = ifelse(DEM_GENDER == "Male", 1, 0)) %>%
-  mutate(DEM_GENDER = as.factor(DEM_GENDER))
 ```
 
 ## Descriptive Analysis (ALL)
@@ -218,9 +212,9 @@ attcheck2.fails <- function(attcheck2){
 }
 ```
 
-The first attention of writing “213” into a text box was failed by: `r round(attcheck1.fails(data_raw$ATTCHECK_NUMBER), 2)`% of participants.
+The first attention of writing “213” into a text box was failed by `r round(attcheck1.fails(data_raw$ATTCHECK_NUMBER), 2)`% of participants.
 
-`r round(attcheck2.fails(data_raw$ATTCHECK_RES), 2)`%of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.
+`r round(attcheck2.fails(data_raw$ATTCHECK_RES), 2)`% of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.
 
 ## Para Data (YOUR NAME)
 

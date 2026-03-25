@@ -234,20 +234,19 @@ Pay Attention Please!
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(data_raw_tmp)</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># (3.) Exclude outlier values for age</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> data_raw <span class="sc">%&gt;%</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">DEM_AGE =</span> <span class="fu">case_when</span>(</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>      DEM_AGE <span class="sc">&lt;</span> <span class="dv">18</span> <span class="sc">|</span> DEM_AGE <span class="sc">&gt;</span> <span class="dv">100</span> <span class="sc">~</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> DEM_AGE</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># % outliers</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>per_out <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="sc">!</span>(data_raw<span class="sc">$</span>DEM_AGE <span class="sc">%in%</span> <span class="dv">18</span><span class="sc">:</span><span class="dv">100</span>) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(data_raw<span class="sc">$</span>DEM_AGE)) <span class="sc">*</span> <span class="dv">100</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># data</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"00_data/ds_final.csv"</span>), <span class="at">sep =</span> <span class="st">";"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(COUNTRY_CODE <span class="sc">==</span> <span class="st">"USA"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># % outliers</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>per_out <span class="ot">&lt;-</span> <span class="fu">mean</span>(data_raw<span class="sc">$</span>DEM_AGE <span class="sc">&lt;</span> <span class="dv">18</span> <span class="sc">|</span> data_raw<span class="sc">$</span>DEM_AGE <span class="sc">&gt;</span> <span class="dv">100</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># = none</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># (4.) Gender (1 = male)</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> data_raw  <span class="sc">%&gt;%</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEM_GENDER =</span> <span class="fu">ifelse</span>(DEM_GENDER <span class="sc">==</span> <span class="st">"Male"</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEM_GENDER =</span> <span class="fu">as.factor</span>(DEM_GENDER))</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># data</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"00_data/ds_final.csv"</span>), <span class="at">sep =</span> <span class="st">";"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(COUNTRY_CODE <span class="sc">==</span> <span class="st">"USA"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The following packages are used in this script.</p>
 <div class="cell">
@@ -268,7 +267,6 @@ Pay Attention Please!
 <ol type="1">
 <li>Respondents who did not reach the last page were excluded: 44.57%</li>
 <li>Duplicate respondents were excluded: 0.15%</li>
-<li>Age values outside the range of 18 to 100 were set to NA: 0%</li>
 <li>Gender was temporarily recoded into a binary variable (1 = male), with self-described responses excluded from this coding.</li>
 <li>tbc</li>
 </ol>
@@ -300,12 +298,7 @@ Pay Attention Please!
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_ELI_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the academic elite (mean)"</span>,</span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_DEC_m =</span> <span class="st">"Science-related populist attitudes: demands for decision-making sovereignty (mean)"</span>,</span>
 <span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_TRU_m =</span> <span class="st">"Science-related populist attitudes: demands for truth-speaking sovereignty (mean)"</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Gender (1 = male)</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> data_raw  <span class="sc">%&gt;%</span></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEM_GENDER =</span> <span class="fu">ifelse</span>(DEM_GENDER <span class="sc">==</span> <span class="st">"Male"</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEM_GENDER =</span> <span class="fu">as.factor</span>(DEM_GENDER))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -628,8 +621,8 @@ Pay Attention Please!
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>((<span class="dv">1</span> <span class="sc">-</span> ((n_valid <span class="sc">-</span> n_fails) <span class="sc">/</span> n_valid)) <span class="sc">*</span> <span class="dv">100</span>)</span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The first attention of writing “213” into a text box was failed by: 0% of participants.</p>
-<p>0%of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.</p>
+<p>The first attention of writing “213” into a text box was failed by 0% of participants.</p>
+<p>0% of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.</p>
 </section>
 <section id="para-data-your-name" class="level2">
 <h2 class="anchored" data-anchor-id="para-data-your-name">Para Data (YOUR NAME)</h2>
