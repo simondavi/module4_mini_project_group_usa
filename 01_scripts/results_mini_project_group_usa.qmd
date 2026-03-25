@@ -117,7 +117,7 @@ data_raw <- data_raw %>%
 
 # (3.) Gender (1 = male)
 data_raw <- data_raw  %>%
-  mutate(DEM_GENDER = ifelse(DEM_GENDER == "Male", 1, 0)) %>%
+  mutate(DEM_GENDER = ifelse(DEM_GENDER == 1, 1, 0)) %>%
   mutate(DEM_GENDER = as.factor(DEM_GENDER))
 
 # data

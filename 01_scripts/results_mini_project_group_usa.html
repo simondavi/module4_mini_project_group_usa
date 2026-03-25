@@ -238,7 +238,7 @@ Pay Attention Please!
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># (3.) Gender (1 = male)</span></span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> data_raw  <span class="sc">%&gt;%</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEM_GENDER =</span> <span class="fu">ifelse</span>(DEM_GENDER <span class="sc">==</span> <span class="st">"Male"</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEM_GENDER =</span> <span class="fu">ifelse</span>(DEM_GENDER <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEM_GENDER =</span> <span class="fu">as.factor</span>(DEM_GENDER))</span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co"># data</span></span>
@@ -355,12 +355,12 @@ Pay Attention Please!
 <p><strong>Variable type: factor</strong></p>
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 21%">
-<col style="width: 15%">
-<col style="width: 21%">
-<col style="width: 12%">
+<col style="width: 19%">
 <col style="width: 13%">
-<col style="width: 16%">
+<col style="width: 19%">
+<col style="width: 11%">
+<col style="width: 12%">
+<col style="width: 23%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -378,8 +378,8 @@ Pay Attention Please!
 <td style="text-align: right;">285</td>
 <td style="text-align: right;">0.94</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">0: 4362</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">0: 2409, 1: 1953</td>
 </tr>
 </tbody>
 </table>
