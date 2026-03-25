@@ -69,6 +69,7 @@ library(labelled)       # data labels
 #
 # data: The analysis-ready dataset (N = 69,534), including post-stratification weights:https://osf.io/5c3qd/wiki?wiki=fqmdn
 
+# data_raw
 data_raw <- read.csv(here("00_data/ds_full.csv"), sep = ";") %>%
   filter(COUNTRY_CODE == "USA")
 
@@ -84,64 +85,28 @@ data_raw <- data_raw_tmp
 
 # (2.) Identify and exclude duplicate completes
 
-# Initialize ID data (stored in separate rds file)
+# Initialize ID data (stored in separate csv file)
 ds_id <- read.csv(here("00_data/ds_id.csv"), sep = ";") 
 ds_main <- data_raw 
 
-# Show cases with duplicate IDs
-left_join(ds_main, ds_id, by = "ID_QUALTRICS") %>%
-  filter(!is.na(ID_POLLCMPNY)) %>%
-  add_count(ID_POLLCMPNY) %>%
-  filter(n != 1) %>%
-  arrange(COUNTRY_NAME, LAB)
-
-
-# Show duplicate IDs per country and lab
-left_join(ds_main, ds_id, by = "ID_QUALTRICS") %>% 
-  filter(!is.na(ID_POLLCMPNY)) %>%
-  add_count(ID_POLLCMPNY) %>%
-  filter(n != 1) %>%
-  group_by(LAB, COUNTRY_NAME, ID_POLLCMPNY) %>%
-  summarise(count = n(), .groups = "drop") %>%
-  arrange(COUNTRY_NAME, LAB) 
-
-
-# Show number of duplicate IDs per country and lab
-left_join(ds_main, ds_id, by = "ID_QUALTRICS") %>%
-  filter(!is.na(ID_POLLCMPNY)) %>%
-  add_count(ID_POLLCMPNY) %>%
-  group_by(LAB, COUNTRY_NAME, ID_POLLCMPNY) %>%
-  summarise(count = n(), .groups = "drop") %>%
-  group_by(LAB, COUNTRY_NAME) %>%
-  summarise(duplicates = sum(count - 1), .groups = "drop") %>%
-  arrange(COUNTRY_NAME, LAB) %>%
-  print(n = 79)
-
-
-# Retain only first response and delete all other
 ds_main_tmp <- left_join(ds_main, ds_id, by = "ID_QUALTRICS") %>%
-  mutate(ID_POLLCMPNY1 = case_when(is.na(ID_POLLCMPNY) ~ ID_QUALTRICS, TRUE ~ as.character(ID_POLLCMPNY))) %>%
-  group_by(ID_POLLCMPNY1) %>%
-  slice_min(Recorded, n = 1) %>%
-  mutate(ID_POLLCMPNY2 = ifelse(startsWith(ID_POLLCMPNY1, "R_"), NA_character_, ID_POLLCMPNY1)) %>%
-  ungroup() %>%
-  arrange(COUNTRY_CODE, LAB) %>%
-  copy_labels(ds_main)
+  group_by(ID_POLLCMPNY) %>%
+  filter(is.na(ID_POLLCMPNY) | row_number(Recorded) == 1) %>%
+  ungroup()
 
 # Confirm that there are no duplicate completes (empty tibble)
 ds_main_tmp %>% 
   filter(!is.na(ID_POLLCMPNY)) %>%
-  group_by(ID_POLLCMPNY1) %>% 
+  group_by(ID_POLLCMPNY) %>% 
   summarise(n = n()) %>% 
   filter(n > 1)
 
+# % removed
+perc_removed <- ((nrow(ds_main) - nrow(ds_main_tmp)) / nrow(ds_main)) * 100
+
 data_raw <- ds_main_tmp
 
-
-
-
-
-
+# data
 data <- read.csv(here("00_data/ds_final.csv"), sep = ";") %>%
   filter(COUNTRY_CODE == "USA")
 ```
