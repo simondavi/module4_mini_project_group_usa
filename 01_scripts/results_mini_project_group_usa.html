@@ -92,7 +92,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#compute-indices" id="toc-compute-indices" class="nav-link" data-scroll-target="#compute-indices">Compute Indices</a></li>
   </ul></li>
   <li><a href="#descriptive-analysis-all" id="toc-descriptive-analysis-all" class="nav-link" data-scroll-target="#descriptive-analysis-all">Descriptive Analysis (ALL)</a></li>
-  <li><a href="#attention-checks-your-name" id="toc-attention-checks-your-name" class="nav-link" data-scroll-target="#attention-checks-your-name">Attention Checks (YOUR NAME)</a></li>
+  <li><a href="#attention-checks-david" id="toc-attention-checks-david" class="nav-link" data-scroll-target="#attention-checks-david">Attention Checks (David)</a></li>
   <li><a href="#para-data-your-name" id="toc-para-data-your-name" class="nav-link" data-scroll-target="#para-data-your-name">Para Data (YOUR NAME)</a></li>
   <li><a href="#missing-data-your-name" id="toc-missing-data-your-name" class="nav-link" data-scroll-target="#missing-data-your-name">Missing Data (YOUR NAME)</a></li>
   <li><a href="#response-distributions-your-name" id="toc-response-distributions-your-name" class="nav-link" data-scroll-target="#response-distributions-your-name">Response Distributions (YOUR NAME)</a></li>
@@ -132,14 +132,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">20.03.2026</p>
+      <p class="date">25.03.2026</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">20.03.2026</p>
+      <p class="date-modified">25.03.2026</p>
     </div>
   </div>
     
@@ -179,46 +179,133 @@ Pay Attention Please!
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)          <span class="co"># descriptives</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)       <span class="co"># data labels</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------- Load Packages ------------- ####</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------- Read Data ------------- ####</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># We use the analysis-ready dataset (ds_final, N = 69,534), including post-stratification weights: https://osf.io/5c3qd/wiki?wiki=fqmdn</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"00_data/ds_final.csv"</span>), <span class="at">sep =</span> <span class="st">";"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(COUNTRY_CODE <span class="sc">==</span> <span class="st">"USA"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># There are two versions of the data (!!!):</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># data_raw: The raw dataset (N = 167,101) before any cleaning and transformations.</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># data: The analysis-ready dataset (N = 69,534), including post-stratification weights:https://osf.io/5c3qd/wiki?wiki=fqmdn</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># data_raw</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"00_data/ds_full.csv"</span>), <span class="at">sep =</span> <span class="st">";"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(COUNTRY_CODE <span class="sc">==</span> <span class="st">"USA"</span>)  <span class="sc">%&gt;%</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">na_if</span>(., <span class="dv">99</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.character), <span class="sc">~</span> <span class="fu">na_if</span>(., <span class="st">"99"</span>)))</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># raw daat needs to be processed (a liitle bit)</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Source: https://osf.io/5c3qd/files/xz8bw</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># (1.)  Exclude incomplete records (all respondents who did not reach the last page)</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>data_raw_tmp <span class="ot">&lt;-</span> data_raw <span class="sc">%&gt;%</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(DEM_RESIDENCE)) </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># % removed</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>per_rem1 <span class="ot">&lt;-</span> ((<span class="fu">nrow</span>(data_raw) <span class="sc">-</span> <span class="fu">nrow</span>(data_raw_tmp)) <span class="sc">/</span> <span class="fu">nrow</span>(data_raw)) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> data_raw_tmp</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(data_raw_tmp)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># (2.) Identify and exclude duplicate completes</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize ID data (stored in separate csv file)</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>ds_id <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"00_data/ds_id.csv"</span>), <span class="at">sep =</span> <span class="st">";"</span>) </span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>data_raw_tmp <span class="ot">&lt;-</span> <span class="fu">left_join</span>(data_raw, ds_id, <span class="at">by =</span> <span class="st">"ID_QUALTRICS"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ID_POLLCMPNY) <span class="sc">%&gt;%</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(ID_POLLCMPNY) <span class="sc">|</span> <span class="fu">row_number</span>(Recorded) <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Confirm that there are no duplicate completes (empty tibble)</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>data_raw_tmp <span class="sc">%&gt;%</span> </span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(ID_POLLCMPNY)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ID_POLLCMPNY) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 × 2
+# ℹ 2 variables: ID_POLLCMPNY &lt;chr&gt;, n &lt;int&gt;</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># % removed</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>per_rem2 <span class="ot">&lt;-</span> ((<span class="fu">nrow</span>(data_raw) <span class="sc">-</span> <span class="fu">nrow</span>(data_raw_tmp)) <span class="sc">/</span> <span class="fu">nrow</span>(data_raw)) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> data_raw_tmp</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(ds_id)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(data_raw_tmp)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># (3.) Exclude outlier values for age</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> data_raw <span class="sc">%&gt;%</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">DEM_AGE =</span> <span class="fu">case_when</span>(</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>      DEM_AGE <span class="sc">&lt;</span> <span class="dv">18</span> <span class="sc">|</span> DEM_AGE <span class="sc">&gt;</span> <span class="dv">100</span> <span class="sc">~</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> DEM_AGE</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># % outliers</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>per_out <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="sc">!</span>(data_raw<span class="sc">$</span>DEM_AGE <span class="sc">%in%</span> <span class="dv">18</span><span class="sc">:</span><span class="dv">100</span>) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(data_raw<span class="sc">$</span>DEM_AGE)) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># data</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"00_data/ds_final.csv"</span>), <span class="at">sep =</span> <span class="st">";"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(COUNTRY_CODE <span class="sc">==</span> <span class="st">"USA"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The following packages are used in this script.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">installed.packages</span>()[<span class="fu">names</span>(<span class="fu">sessionInfo</span>()<span class="sc">$</span>otherPkgs), <span class="st">"Version"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> labelled     skimr lubridate   forcats   stringr     dplyr     purrr     readr 
+ "2.16.0"   "2.2.2"   "1.9.3"   "1.0.1"   "1.6.0"   "1.1.4"   "1.0.2"   "2.1.6" 
+    tidyr    tibble   ggplot2 tidyverse      here 
+  "1.3.2"   "3.3.1"   "4.0.1"   "2.0.0"   "1.0.1" </code></pre>
+</div>
+</div>
+<p>Two datasets are used:</p>
+<ul>
+<li><code>data_raw</code>: The raw dataset (N = 167,101) before any cleaning or transformations.</li>
+<li><code>data</code>: The analysis-ready dataset (N = 69,534), including post-stratification.</li>
+</ul>
+<p>Not all calculations can be performed using the pre-processed data, as some information is already missing. Therefore, the raw data were processed as follows:</p>
+<ol type="1">
+<li>Respondents who did not reach the last page were excluded: 44.57%</li>
+<li>Duplicate respondents were excluded: 0.15%</li>
+<li>Age values outside the range of 18 to 100 were set to NA: 0%</li>
+<li>Gender was temporarily recoded into a binary variable (1 = male), with self-described responses excluded from this coding.</li>
+<li>tbc</li>
+</ol>
+<p><em>Note to the group: I think most calculations should be done with the file ‘data_raw’.</em></p>
 </section>
 <section id="compute-indices" class="level3">
 <h3 class="anchored" data-anchor-id="compute-indices">Compute Indices</h3>
+<p><em>Science-related populist attitudes</em> were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree; Mede, Schäfer, &amp; Füchslin, 2021), aggregated with the Goertz approach (Wuttke et al., 2020)</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------ Compute Indices ------------ ####</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># SCIPOP_goertz: Science-related populist attitudes</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 8 items on 4 dimensions, measured with 5-point scales (1 = strongly disagree to 5 = strongly agree; Mede, </span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Schäfer, &amp; Füchslin, 2021), aggregated with the Goertz approach (Wuttke et al., 2020)</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute overall and dimension scores</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_PPL_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_common, SCIPOP_good)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_ELI_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_advantage, SCIPOP_cahoots)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_DEC_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_influence, SCIPOP_involved)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_TRU_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_lifeexp, SCIPOP_rely)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_goertz =</span> <span class="fu">pmin</span>(SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> labelled<span class="sc">::</span><span class="fu">set_variable_labels</span>(</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  data,</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_goertz =</span> <span class="st">"Science-related populist attitudes: overall (Goertz score)"</span>,</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_PPL_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the ordinary people (mean)"</span>,</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_ELI_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the academic elite (mean)"</span>,</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_DEC_m =</span> <span class="st">"Science-related populist attitudes: demands for decision-making sovereignty (mean)"</span>,</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_TRU_m =</span> <span class="st">"Science-related populist attitudes: demands for truth-speaking sovereignty (mean)"</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Gender</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEM_GENDER =</span> <span class="fu">as.factor</span>(DEM_GENDER))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------ Compute Indices ------------ ####</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># SCIPOP_goertz: Science-related populist attitudes</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute overall and dimension scores</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> data_raw <span class="sc">%&gt;%</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_PPL_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_common, SCIPOP_good)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_ELI_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_advantage, SCIPOP_cahoots)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_DEC_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_influence, SCIPOP_involved)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_TRU_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_lifeexp, SCIPOP_rely)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_goertz =</span> <span class="fu">pmin</span>(SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> labelled<span class="sc">::</span><span class="fu">set_variable_labels</span>(</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  data_raw,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_goertz =</span> <span class="st">"Science-related populist attitudes: overall (Goertz score)"</span>,</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_PPL_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the ordinary people (mean)"</span>,</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_ELI_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the academic elite (mean)"</span>,</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_DEC_m =</span> <span class="st">"Science-related populist attitudes: demands for decision-making sovereignty (mean)"</span>,</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_TRU_m =</span> <span class="st">"Science-related populist attitudes: demands for truth-speaking sovereignty (mean)"</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Gender (1 = male)</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> data_raw  <span class="sc">%&gt;%</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEM_GENDER =</span> <span class="fu">ifelse</span>(DEM_GENDER <span class="sc">==</span> <span class="st">"Male"</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">DEM_GENDER =</span> <span class="fu">as.factor</span>(DEM_GENDER))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -226,11 +313,13 @@ Pay Attention Please!
 <h2 class="anchored" data-anchor-id="descriptive-analysis-all">Descriptive Analysis (ALL)</h2>
 <p>Provide basic descriptive statistics for your (sub)sample and instrument(s).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="sc">%&gt;%</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(DEM_AGE, DEM_GENDER, <span class="co"># demographics</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>         SCIPOP_common, SCIPOP_good, SCIPOP_advantage, SCIPOP_cahoots, SCIPOP_influence, SCIPOP_involved, SCIPOP_lifeexp, SCIPOP_rely,<span class="co"># items</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>         SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, SCIPOP_goertz) <span class="sc">%&gt;%</span> <span class="co"># scales</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">skim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>data_des <span class="ot">&lt;-</span> data_raw  <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(DEM_AGE, DEM_GENDER, <span class="co"># demographics</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>         SCIPOP_common, SCIPOP_good, SCIPOP_advantage, SCIPOP_cahoots, SCIPOP_influence, SCIPOP_involved, SCIPOP_lifeexp, SCIPOP_rely,<span class="co"># items</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>         SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, SCIPOP_goertz) <span class="sc">%&gt;%</span> <span class="co"># scales</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">skim</span>()</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>data_des</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <caption>Data summary</caption>
@@ -241,7 +330,7 @@ Pay Attention Please!
 </tr>
 <tr class="even">
 <td style="text-align: left;">Number of rows</td>
-<td style="text-align: left;">2559</td>
+<td style="text-align: left;">2580</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Number of columns</td>
@@ -276,12 +365,12 @@ Pay Attention Please!
 <p><strong>Variable type: factor</strong></p>
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 19%">
-<col style="width: 13%">
-<col style="width: 19%">
-<col style="width: 11%">
+<col style="width: 21%">
+<col style="width: 15%">
+<col style="width: 21%">
 <col style="width: 12%">
-<col style="width: 23%">
+<col style="width: 13%">
+<col style="width: 16%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -296,11 +385,11 @@ Pay Attention Please!
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">DEM_GENDER</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">11</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">0: 1387, 1: 1172</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">0: 2569</td>
 </tr>
 </tbody>
 </table>
@@ -337,12 +426,12 @@ Pay Attention Please!
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">DEM_AGE</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">47.41</td>
+<td style="text-align: right;">47.39</td>
 <td style="text-align: right;">16.86</td>
 <td style="text-align: right;">18</td>
-<td style="text-align: right;">33.5</td>
+<td style="text-align: right;">33.0</td>
 <td style="text-align: right;">46.0</td>
 <td style="text-align: right;">62.0</td>
 <td style="text-align: right;">81</td>
@@ -350,10 +439,10 @@ Pay Attention Please!
 </tr>
 <tr class="even">
 <td style="text-align: left;">SCIPOP_common</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">3.67</td>
-<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">1.08</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">3.0</td>
 <td style="text-align: right;">4.0</td>
@@ -365,8 +454,8 @@ Pay Attention Please!
 <td style="text-align: left;">SCIPOP_good</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">3.57</td>
-<td style="text-align: right;">1.07</td>
+<td style="text-align: right;">3.56</td>
+<td style="text-align: right;">1.08</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">3.0</td>
 <td style="text-align: right;">4.0</td>
@@ -405,7 +494,7 @@ Pay Attention Please!
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">3.34</td>
-<td style="text-align: right;">1.21</td>
+<td style="text-align: right;">1.22</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">3.0</td>
 <td style="text-align: right;">3.0</td>
@@ -418,7 +507,7 @@ Pay Attention Please!
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">3.47</td>
-<td style="text-align: right;">1.18</td>
+<td style="text-align: right;">1.19</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">3.0</td>
 <td style="text-align: right;">4.0</td>
@@ -444,7 +533,7 @@ Pay Attention Please!
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">3.19</td>
-<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">1.33</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">2.0</td>
 <td style="text-align: right;">3.0</td>
@@ -456,7 +545,7 @@ Pay Attention Please!
 <td style="text-align: left;">SCIPOP_PPL_m</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">3.62</td>
+<td style="text-align: right;">3.61</td>
 <td style="text-align: right;">0.93</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">3.0</td>
@@ -522,9 +611,25 @@ Pay Attention Please!
 </div>
 </div>
 </section>
-<section id="attention-checks-your-name" class="level2">
-<h2 class="anchored" data-anchor-id="attention-checks-your-name">Attention Checks (YOUR NAME)</h2>
+<section id="attention-checks-david" class="level2">
+<h2 class="anchored" data-anchor-id="attention-checks-david">Attention Checks (David)</h2>
 <p>The first kind of data quality indicators are check items. What check items are provided in the dataset and did participants pass the check?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>attcheck1.fails <span class="ot">&lt;-</span> <span class="cf">function</span>(attcheck1){</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  n_valid <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(attcheck1), <span class="at">na.rm =</span> T)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  n_fails <span class="ot">&lt;-</span> <span class="fu">sum</span>(attcheck1 <span class="sc">!=</span> <span class="st">"213"</span>, <span class="at">na.rm =</span> T)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>((<span class="dv">1</span> <span class="sc">-</span> ((n_valid <span class="sc">-</span> n_fails) <span class="sc">/</span> n_valid)) <span class="sc">*</span> <span class="dv">100</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>attcheck2.fails <span class="ot">&lt;-</span> <span class="cf">function</span>(attcheck2){</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  n_valid <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(attcheck2), <span class="at">na.rm =</span> T)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  n_fails <span class="ot">&lt;-</span> <span class="fu">sum</span>(attcheck2 <span class="sc">%in%</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">na.rm =</span> T) <span class="sc">+</span> <span class="fu">sum</span>(attcheck2 <span class="sc">==</span> <span class="sc">-</span><span class="dv">99</span>, <span class="at">na.rm =</span> T)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>((<span class="dv">1</span> <span class="sc">-</span> ((n_valid <span class="sc">-</span> n_fails) <span class="sc">/</span> n_valid)) <span class="sc">*</span> <span class="dv">100</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The first attention of writing “213” into a text box was failed by: 0% of participants.</p>
+<p>0%of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.</p>
 </section>
 <section id="para-data-your-name" class="level2">
 <h2 class="anchored" data-anchor-id="para-data-your-name">Para Data (YOUR NAME)</h2>
