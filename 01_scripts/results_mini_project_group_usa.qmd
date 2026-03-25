@@ -75,20 +75,10 @@ data_raw <- read.csv(here("00_data/ds_full.csv"), sep = ";") %>%
   mutate(across(where(is.numeric), ~ na_if(., 99))) %>%
   mutate(across(where(is.character), ~ na_if(., "99")))
 
-# raw daat needs to be processed (a liitle bit)
+# raw data needs to be processed (a liitle bit)
 # Source: https://osf.io/5c3qd/files/xz8bw
 
-# (1.)  Exclude incomplete records (all respondents who did not reach the last page)
-data_raw_tmp <- data_raw %>%
-  filter(!is.na(DEM_RESIDENCE)) 
-
-# % removed
-per_rem1 <- ((nrow(data_raw) - nrow(data_raw_tmp)) / nrow(data_raw)) * 100
-
-data_raw <- data_raw_tmp
-rm(data_raw_tmp)
-
-# (2.) Identify and exclude duplicate completes
+# (1.) Identify and exclude duplicate completes
 
 # Initialize ID data (stored in separate csv file)
 ds_id <- read.csv(here("00_data/ds_id.csv"), sep = ";") 
@@ -106,19 +96,25 @@ data_raw_tmp %>%
   filter(n > 1)
 
 # % removed
-per_rem2 <- ((nrow(data_raw) - nrow(data_raw_tmp)) / nrow(data_raw)) * 100
+per_rem1 <- ((nrow(data_raw) - nrow(data_raw_tmp)) / nrow(data_raw)) * 100
 
 data_raw <- data_raw_tmp
 rm(ds_id)
 rm(data_raw_tmp)
 
-# (3.) Exclude outlier values for age
+# (2.) Exclude outlier values for age
 # % outliers
 per_out <- mean(data_raw$DEM_AGE < 18 | data_raw$DEM_AGE > 100, na.rm = TRUE) * 100
 
-# = none
+# Set to NA
+data_raw <- data_raw %>%
+  mutate(
+    DEM_AGE = if_else(DEM_AGE < 18 | DEM_AGE > 100, 
+                      as.numeric(NA),
+                      DEM_AGE)         
+  )
 
-# (4.) Gender (1 = male)
+# (3.) Gender (1 = male)
 data_raw <- data_raw  %>%
   mutate(DEM_GENDER = ifelse(DEM_GENDER == "Male", 1, 0)) %>%
   mutate(DEM_GENDER = as.factor(DEM_GENDER))
@@ -140,8 +136,8 @@ Two datasets are used:
 
 Not all calculations can be performed using the pre-processed data, as some information is already missing. Therefore, the raw data were processed as follows:
 
-1. Respondents who did not reach the last page were excluded: `r round(per_rem1, 2)`%
-2. Duplicate respondents were excluded: `r round(per_rem2, 2)`%
+1. Duplicate respondents were excluded: `r round(per_rem1, 2)`%
+2. Age values outside the range of 18 to 100 were set to NA: `r round(per_out, 2)`%
 3. Gender was temporarily recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
 4. tbc
 
