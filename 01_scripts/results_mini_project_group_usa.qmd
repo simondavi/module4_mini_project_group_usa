@@ -145,6 +145,8 @@ Not all calculations can be performed using the pre-processed data, as some info
 4. Gender was temporarily recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
 5. tbc
 
+*Note to the group: I think most calculations should be done with the file 'data_raw'.*
+
 ### Compute Indices
 
 *Science-related populist attitudes* were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree; Mede, Schäfer, & Füchslin, 2021), aggregated with the Goertz approach (Wuttke et al., 2020)
@@ -197,11 +199,9 @@ data_des %>%
 
 The first kind of data quality indicators are check items. What check items are provided in the dataset and did participants pass the check?
 
-1. The first attention check "": `r round(per_rem1, 2)`%
-2. Duplicate respondents were excluded: `r round(per_rem2, 2)`%
-3. Age values outside the range of 18 to 100 were set to NA: `r round(per_out, 2)`%
-4. Gender was temporarily recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
-5. tbc
+The first attention of writing “213” into a text box was failed by "": `r round(attcheck1.fails(data_raw$ATTCHECK_NUMBER), 2)`% of participants.
+
+`r round(attcheck2.fails(data_raw$ATTCHECK_NUMBER), 2)`%of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.
 
 ```{r}
 data_raw$ATTCHECK_NUMBER <- data_raw$attcheck1
