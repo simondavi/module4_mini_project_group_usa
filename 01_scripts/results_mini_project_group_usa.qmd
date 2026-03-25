@@ -60,6 +60,8 @@ library(here)           # find files
 library(tidyverse)      # data management
 library(skimr)          # descriptives
 library(labelled)       # data labels
+library (psych)         # descriptives
+library(lubridate)      # date time objects
 
 ####  ------------- Read Data ------------- ####
 
@@ -75,10 +77,20 @@ data_raw <- read.csv(here("00_data/ds_full.csv"), sep = ";") %>%
   mutate(across(where(is.numeric), ~ na_if(., 99))) %>%
   mutate(across(where(is.character), ~ na_if(., "99")))
 
-# raw data needs to be processed (a liitle bit)
+# raw daat needs to be processed (a liitle bit)
 # Source: https://osf.io/5c3qd/files/xz8bw
 
-# (1.) Identify and exclude duplicate completes
+# (1.)  Exclude incomplete records (all respondents who did not reach the last page)
+data_raw_tmp <- data_raw %>%
+  filter(!is.na(DEM_RESIDENCE)) 
+
+# % removed
+per_rem1 <- ((nrow(data_raw) - nrow(data_raw_tmp)) / nrow(data_raw)) * 100
+
+data_raw <- data_raw_tmp
+rm(data_raw_tmp)
+
+# (2.) Identify and exclude duplicate completes
 
 # Initialize ID data (stored in separate csv file)
 ds_id <- read.csv(here("00_data/ds_id.csv"), sep = ";") 
@@ -96,28 +108,23 @@ data_raw_tmp %>%
   filter(n > 1)
 
 # % removed
-per_rem1 <- ((nrow(data_raw) - nrow(data_raw_tmp)) / nrow(data_raw)) * 100
+per_rem2 <- ((nrow(data_raw) - nrow(data_raw_tmp)) / nrow(data_raw)) * 100
 
 data_raw <- data_raw_tmp
 rm(ds_id)
 rm(data_raw_tmp)
 
-# (2.) Exclude outlier values for age
-# % outliers
-per_out <- mean(data_raw$DEM_AGE < 18 | data_raw$DEM_AGE > 100, na.rm = TRUE) * 100
-
-# Set to NA
+# (3.) Exclude outlier values for age
 data_raw <- data_raw %>%
   mutate(
-    DEM_AGE = if_else(DEM_AGE < 18 | DEM_AGE > 100, 
-                      as.numeric(NA),
-                      DEM_AGE)         
+    DEM_AGE = case_when(
+      DEM_AGE < 18 | DEM_AGE > 100 ~ NA_real_,
+      TRUE ~ DEM_AGE
+    )
   )
 
-# (3.) Gender (1 = male)
-data_raw <- data_raw  %>%
-  mutate(DEM_GENDER = ifelse(DEM_GENDER == "Male", 1, 0)) %>%
-  mutate(DEM_GENDER = as.factor(DEM_GENDER))
+# % outliers
+per_out <- mean(!(data_raw$DEM_AGE %in% 18:100) & !is.na(data_raw$DEM_AGE)) * 100
 
 # data
 data <- read.csv(here("00_data/ds_final.csv"), sep = ";") %>%
@@ -136,10 +143,11 @@ Two datasets are used:
 
 Not all calculations can be performed using the pre-processed data, as some information is already missing. Therefore, the raw data were processed as follows:
 
-1. Duplicate respondents were excluded: `r round(per_rem1, 2)`%
-2. Age values outside the range of 18 to 100 were set to NA: `r round(per_out, 2)`%
-3. Gender was temporarily recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
-4. tbc
+1. Respondents who did not reach the last page were excluded: `r round(per_rem1, 2)`%
+2. Duplicate respondents were excluded: `r round(per_rem2, 2)`%
+3. Age values outside the range of 18 to 100 were set to NA: `r round(per_out, 2)`%
+4. Gender was temporarily recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
+5. tbc
 
 *Note to the group: I think most calculations should be done with the file 'data_raw'.*
 
@@ -172,6 +180,10 @@ data_raw <- labelled::set_variable_labels(
   SCIPOP_TRU_m = "Science-related populist attitudes: demands for truth-speaking sovereignty (mean)"
 )
 
+# Gender (1 = male)
+data_raw <- data_raw  %>%
+  mutate(DEM_GENDER = ifelse(DEM_GENDER == "Male", 1, 0)) %>%
+  mutate(DEM_GENDER = as.factor(DEM_GENDER))
 ```
 
 ## Descriptive Analysis (ALL)
@@ -208,21 +220,175 @@ attcheck2.fails <- function(attcheck2){
 }
 ```
 
-The first attention of writing “213” into a text box was failed by `r round(attcheck1.fails(data_raw$ATTCHECK_NUMBER), 2)`% of participants.
+The first attention of writing “213” into a text box was failed by: `r round(attcheck1.fails(data_raw$ATTCHECK_NUMBER), 2)`% of participants.
 
-`r round(attcheck2.fails(data_raw$ATTCHECK_RES), 2)`% of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.
+`r round(attcheck2.fails(data_raw$ATTCHECK_RES), 2)`%of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.
 
-## Para Data (YOUR NAME)
+## Para Data (Elnari Potgieter)
 
-The second kind of data quality indicators are para data. What kind of para data can you find in the data? Show with an example how this type of variable can be used for DQA! 
+This section looks at the response time indices of the USA data set, considering total response time, average time per item, relative completion time and speeding factor. This is a draft version.
+
+1. Total Response Time
+
+Total response time refers to the time it takes a respondent to complete the survey. The data set contains a "Duration" variable, analysed here, capturing response time in seconds. 
 
 ```{r}
-
-
-
+# Key Descriptives of Duration variable (in seconds)
+describe (data_raw$Duration)
 ```
+Mean (1174.57) larger than median (905), showing right / positive skew in data. Further analysis to look out for high value outliers. Minimum at 133 seconds (2.22 minutes), and maximum at 26943 seconds (about 7 and a half hours).
+
+The results do not appear to show any missing / incorrectly coded data, so no need for further data cleaning. Further consideration to percentiles / quartiles.
+
+```{r}
+# Consider quartiles
+skim(data_raw$Duration)
+```
+Minimum (133) lower p25 (591), maximum (26953) much higher than mean (1174.57) and p75 (1341.25). The extreme high outliers may be due to opening the survey and only answering the survey later. This does not necessarily mean they were not paying attention when they were answering, so I don't think their answers are necessarily invalid. However, on the lower end, 2.22 minutes for a survey with 111 items (Mede et al., 2025) - some of which open ended - sounds very short. 
+
+Box plots (in seconds) for further investigation.
+
+```{r}
+# Boxplot using base R
+boxplot(data_raw$Duration,
+        main = "Boxplot of Durations",
+        ylab = "Duration (seconds)",
+        col = "lightblue",
+        border = "darkblue")
+```
+2. Average Time per Item
+
+The average time per item indicator captures the average (mean) time spent on survey questions.
+
+```{r}
+# Number of items
+num_items <- 111
+
+# Calculate the average time per item for each respondent
+average_time_per_item <- data_raw$Duration / num_items
+
+# Compute the mean of all average times per item
+mean_average_time_per_item <- mean(average_time_per_item)
+
+# Output the results
+cat("Average time per item for each respondent (in seconds):\n")
+cat("\nMean of all average times per item (in seconds):", mean_average_time_per_item, "seconds\n")
+```
+The average time per item is 10.58 seconds. However, the extreme high outliers may impact this result. 
+
+We proceed by looking at the number and proportion of respondents with an average time per item below 2 seconds (as per the course example) - this cut off can be changed for the final version. 
+
+```{r}
+# Identify respondents who fall below the cutoff of 2 seconds (as per example in course)
+cutoff <- 2
+below_cutoff <- which(average_time_per_item < cutoff)
+
+# Count of respondents below the cutoff
+count_below_cutoff <- length(below_cutoff)
+
+# Proportion of respondents below the cutoff
+proportion_below_cutoff <- count_below_cutoff / length(data_raw$Duration)
+
+cat("\nRespondents below the cutoff of", cutoff, "seconds:\n")
+print(below_cutoff)
+
+cat("\nCount of respondents below the cutoff:", count_below_cutoff, "\n")
+cat("Proportion of respondents below the cutoff:", proportion_below_cutoff, "\n")
+```
+Only 12 respondents (0.005%) had an average time per item below 2 seconds. 
 
 
+Further steps: 
+Decide whether to run the average time analysis without high-end outliers, and then identify those with significantly slower average times per item. 
+Decide whether the cut off should be MRT - 4.4 seconds - per item (Andreadis, 2021)
+
+3. Relative Time Completion
+
+Relative time completion compares the speed of completing the questionnaire for a respondent to the median completion time of the sample. 
+
+```{r}
+# Median completion time of the sample
+median_time <- 905
+
+# Calculate the relative completion time for each respondent
+relative_completion_time <- data_raw$Duration/ median_time
+
+# Output the results
+cat("Relative completion time for each respondent:\n")
+
+# Summary statistics for relative completion times
+cat("\nSummary of relative completion times:\n")
+print(summary(relative_completion_time))
+```
+As per the course example, we calculate how many respondents are faster than twice the median completion time. 
+Please note my findings here need to be revised. I need to check if that is median response time or median of the relative completion time. 
+```{r}
+# Identify respondents who are faster than two times the median completion time
+cutoff <- 2
+faster_than_cutoff <- which(relative_completion_time > cutoff)
+
+# Count of respondents faster than two times the median completion time
+count_faster <- length(faster_than_cutoff)
+
+# Proportion of respondents faster than two times the median completion time
+proportion_faster <- count_faster / length(data_raw$Duration)
+
+# Identify rows where respondents are twice as fast as the median response time
+twice_faster_rows <- which(relative_completion_time < 2)
+
+# Output the results
+cat("\nRespondents faster than two times the median completion time:\n")
+cat("\nCount of respondents faster than two times the median:", count_faster, "\n")
+cat("Proportion of respondents faster than two times the median:", proportion_faster, "\n")
+cat("\nRows where respondents are twice as fast as the median response time:\n")
+```
+317 (13%) respondents where twice as fast as the median of the relative completion time. I did not print the rows for now, as they are quite many. 
+
+4. Speeding Factor
+
+Leiner, 2019 suggests a factor of larger than two as outliers.This is calculated using their response time in relation to the median of the sample. 
+
+```{r}
+# Speeding factor
+# Calculate the speeding factor for each respondent
+speeding_factor <- median_time / data_raw$Duration
+
+# Output the results
+cat("Speeding factor for each respondent:\n")
+
+# Summary statistics for speeding factors
+cat("\nSummary of speeding factors:\n")
+print(summary(speeding_factor))
+```
+Some outliers with a speeding factor above 2, when considering maximum (6.8).
+
+```{r}
+# Identify outliers (speeding factor > 2)
+outliers <- which(speeding_factor > 2)
+
+# Count of outliers
+outlier_count <- length(outliers)
+
+# Proportion of outliers
+outlier_proportion <- outlier_count / length(data$Duration)
+
+# Output the count and proportion of outliers
+cat("\nCount of outliers (speeding factor > 2):", outlier_count, "\n")
+cat("Proportion of outliers:", outlier_proportion, "\n")
+```
+348 (14%) respondents with speeding factor above 2. I did not print the rows for now, as there are quite many.
+
+5. Summary
+
+Suggestion to compare the rows highlighted throgugh this analysis with the rows identified in other analysed (for example attention checks) to identify respondents which may need to be flagged. 
+
+6. References
+
+Knopf T., & Roth M. (2025). Tools and Workflows for Survey Data – Paradata [Slide deck]. In F. Bemmann, J. Blumenberg, J. Daikeler, F. Draxler, M. Fritz, F. Keusch, F. Krämer, S. Jünger, S. Kapidzic, T. Knopf, F. Kreuter, V. Kunz, L. Mejia Lopez, Y. Peters, B. Rammstedt, P. Siegers, J. Sun, C. Wagner, K. Weller, C. E. Yildiz, & L. Young (Eds.), KODAQS Academy.
+
+Leiner, Dominik J.. “Too Fast, too Straight, too Weird: Non-Reactive Indicators for Meaningless Data in Internet Surveys.” Survey research methods 13 (2019): 229-248.
+
+Mede, N.G., Cologna, V., Berger, S. et al. Perceptions of science, science communication, and climate change attitudes in 68 countries – the TISP dataset. Sci Data 12, 114 (2025). https://doi.org/10.1038/s41597-024-04100-7
 
 ## Missing Data (YOUR NAME)
 
