@@ -383,6 +383,11 @@ Mede, N.G., Cologna, V., Berger, S. et al. Perceptions of science, science commu
 The third kind of data quality indicators are missing data. How much data is missing, which data missing pattern occurs and are there cases with many missing data? (in respect to your choosen instrument(s) / variable(s)).
 
 ```{r}
+####  ------------- Load Packages ------------- ####
+library(resquin)
+library(visdat)
+
+ds_usa <- data
 trust_sci_usa <- ds_usa |>
   dplyr::select(dplyr::starts_with("TRUST_SCI_"))
 
