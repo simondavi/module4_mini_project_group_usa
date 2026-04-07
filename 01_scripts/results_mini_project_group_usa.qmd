@@ -427,17 +427,253 @@ Leiner, Dominik J.. “Too Fast, too Straight, too Weird: Non-Reactive Indicator
 
 Mede, N.G., Cologna, V., Berger, S. et al. Perceptions of science, science communication, and climate change attitudes in 68 countries – the TISP dataset. Sci Data 12, 114 (2025). https://doi.org/10.1038/s41597-024-04100-7
 
-## Missing Data (YOUR NAME)
+## Missing Data (Ana)
 
 The third kind of data quality indicators are missing data. How much data is missing, which data missing pattern occurs and are there cases with many missing data? (in respect to your choosen instrument(s) / variable(s)).
 
 ```{r}
+####  ------------- Load Packages ------------- ####
+library(resquin)
+library(visdat)
+library(here) 
+library(dplyr)
+library(tibble)
+library(naniar)
 
+ds_usa <- read.csv(here("00_data/ds_full.csv"), sep = ";") %>%
+  filter(COUNTRY_CODE == "USA")
 
+trust_sci_usa <- ds_usa |>
+  dplyr::select(dplyr::starts_with("TRUST_SCI_"))
+
+clim_gov_usa <- ds_usa |>
+  dplyr::select(dplyr::starts_with("CLIM_GOV_"))
+
+clim_emo_usa <- ds_usa |>
+  dplyr::select(dplyr::starts_with("CLIM_EMO_"))
+
+scipop_usa <- ds_usa |>
+  dplyr::select(dplyr::starts_with("SCIPOP_"))
+
+missing_diag_usa <- ds_usa |>
+  dplyr::select(
+    dplyr::starts_with("TRUST_SCI_"),
+    dplyr::starts_with("CLIM_GOV_"),
+    dplyr::starts_with("CLIM_EMO_"),
+    dplyr::starts_with("SCIPOP_")
+  )
+
+```
+
+```{r}
+visdat::vis_miss(missing_diag_usa)
+
+```
+The missingness map indicates that nonresponse is structured rather than randomly dispersed across items. Missing values cluster in recurring horizontal bands and battery-level blocks, suggesting that missingness is driven primarily by section-level omission, routing, or broader respondent-level nonresponse rather than isolated item skipping.
+
+```{r} 
+naniar::gg_miss_var(missing_diag_usa, show_pct = TRUE)
+
+```
+
+The trust-in-scientists battery shows moderate but highly uniform missingness across items, with each item missing in roughly 22% of cases. This suggests that missingness in this battery is not item-specific, but instead reflects a common section-level process affecting all trust items similarly.
+
+```{r}
+naniar::gg_miss_upset(missing_diag_usa)
+VIM::aggr(missing_diag_usa) |> plot(numbers = TRUE, prop = FALSE)
+
+```
+
+Missingness is concentrated in recurring blocks of variables rather than dispersed randomly across items. This suggests structured battery- or section-level missingness rather than simple random item-level nonresponse. 
+
+#Person-level Missingness
+
+```{r}
+n_miss_per_case <- is.na(missing_diag_usa) |>
+  as_tibble() |>
+  rowSums()
+
+missing_cases_usa <- tibble(
+  respondent_id = seq_len(nrow(missing_diag_usa)),
+  n_missing = n_miss_per_case
+)
+
+summary(missing_cases_usa$n_missing)
+
+```
+Respondent-level missingness across the combined batteries was highly uneven. While at least half of respondents had no missing values, the upper quartile was missing 16 or more items, and the maximum was 36 missing items.
+```{r}
+missing_cases_usa |>
+  dplyr::filter(n_missing == ncol(missing_diag_usa)) |>
+  print(n = 100)
+
+naniar::gg_miss_case(missing_diag_usa, show_pct = TRUE)
+
+missing_cases_usa |>
+  dplyr::filter(n_missing > 0) |>
+  dplyr::arrange(dplyr::desc(n_missing)) |>
+  print(n = 100)
+
+missing_cases_usa |>
+  dplyr::summarise(
+    n_with_any_missing = sum(n_missing > 0),
+    pct_with_any_missing = mean(n_missing > 0) * 100
+  )
+
+missing_cases_usa |>
+  dplyr::count(n_missing) |>
+  dplyr::arrange(dplyr::desc(n_missing))
+
+ncol(missing_diag_usa)
 
 ```
 
 
+```{r}
+battery_missing_summary <- tibble(
+  battery = c("TRUST_SCI", "CLIM_GOV", "CLIM_EMO", "SCIPOP"),
+  n_items = c(
+    ncol(trust_sci_usa),
+    ncol(clim_gov_usa),
+    ncol(clim_emo_usa),
+    ncol(scipop_usa)
+  ),
+  mean_pct_missing = c(
+    mean(is.na(as.matrix(trust_sci_usa))) * 100,
+    mean(is.na(as.matrix(clim_gov_usa))) * 100,
+    mean(is.na(as.matrix(clim_emo_usa))) * 100,
+    mean(is.na(as.matrix(scipop_usa))) * 100
+  )
+)
+
+battery_missing_summary
+
+```
+
+
+#Item-Level Missingness
+
+```{r}
+item_missing_usa <- missing_diag_usa |>
+  dplyr::summarise(
+    across(everything(), ~ mean(is.na(.x)) * 100)
+  ) |>
+  tidyr::pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "pct_missing"
+  ) |>
+  dplyr::arrange(dplyr::desc(pct_missing))
+
+item_missing_usa
+
+ggplot(item_missing_usa, aes(x = reorder(variable, pct_missing), y = pct_missing)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(
+    x = "Variable",
+    y = "% missing",
+    title = "Item-level missingness in selected USA survey batteries"
+  ) +
+  theme_minimal()
+
+```
+
+The trust-in-scientists battery shows moderate but very even missingness across items, suggesting that nonresponse reflects a common battery-level process rather than selective skipping of particular trust items.
+
+#Domain-level missingness
+
+```{r}
+domain_missing_usa <- ds_usa |>
+  dplyr::transmute(
+    miss_trust_sci = as.integer(dplyr::if_all(dplyr::starts_with("TRUST_SCI_"), is.na)),
+    miss_clim_gov  = as.integer(dplyr::if_all(dplyr::starts_with("CLIM_GOV_"), is.na)),
+    miss_clim_emo  = as.integer(dplyr::if_all(dplyr::starts_with("CLIM_EMO_"), is.na)),
+    miss_scipop    = as.integer(dplyr::if_all(dplyr::starts_with("SCIPOP_"), is.na))
+  )
+
+domain_missing_usa |>
+  dplyr::summarise(dplyr::across(everything(), sum))
+
+cor(domain_missing_usa)
+round(cor(domain_missing_usa), 3)
+
+
+```
+Battery-level missingness indicators were very strongly correlated, especially between climate-government and climate-emotion items (r = 0.997) and between trust-in-scientists and science-populism items (r = 0.978). This indicates that missingness is driven by structured module-level processes rather than isolated or random nonresponse.
+
+#Complete-case Restriction
+```{r}
+complete_cases_usa <- missing_diag_usa |>
+  tidyr::drop_na()
+
+nrow(missing_diag_usa)
+nrow(complete_cases_usa)
+
+tibble(
+  total_cases = nrow(missing_diag_usa),
+  complete_cases = nrow(complete_cases_usa),
+  cases_dropped = nrow(missing_diag_usa) - nrow(complete_cases_usa),
+  pct_dropped = (nrow(missing_diag_usa) - nrow(complete_cases_usa)) / nrow(missing_diag_usa) * 100
+)
+
+```
+Complete-case analysis would exclude 2,067 of 4,662 respondents (44.3%), showing that listwise deletion is highly costly when these batteries are analysed together, , indicating that complete-case analysis would substantially reduce statistical power and is poorly suited to a dataset in which missingness is structured at the battery level.
+
+#Logistic Regression
+```{r}
+
+# install.packages("logistf")
+library(logistf)
+
+
+miss_model_trust_sci <- glm(
+  miss_trust_sci ~ DEM_AGE + DEM_EDU + Duration + Response_TYPE 
+  + DEM_GENDER,
+  data = dplyr::bind_cols(ds_usa, domain_missing_usa),
+  family = binomial()
+)
+
+summary(miss_model_trust_sci)
+
+model_df <- dplyr::bind_cols(ds_usa, domain_missing_usa) |>
+  dplyr::filter(
+    !is.na(DEM_AGE),
+    !is.na(DEM_EDU),
+    !is.na(Duration),
+    !is.na(Response_TYPE),
+    !is.na(DEM_GENDER)
+  ) |>
+  dplyr::mutate(
+    DEM_EDU       = factor(DEM_EDU),
+    Response_TYPE = factor(Response_TYPE),
+    DEM_GENDER    = factor(DEM_GENDER)
+  )
+
+table(model_df$miss_trust_sci, model_df$Response_TYPE)
+table(model_df$miss_trust_sci, model_df$DEM_GENDER)
+table(model_df$miss_trust_sci, model_df$DEM_EDU)
+
+miss_model_trust_sci <- logistf::logistf(
+  miss_trust_sci ~ DEM_AGE + DEM_EDU + Duration + Response_TYPE + DEM_GENDER,
+  data = model_df
+)
+ 
+summary(miss_model_trust_sci)
+
+tibble::tibble(
+  term      = miss_model_trust_sci$terms,
+  odds_ratio = exp(coef(miss_model_trust_sci)),
+  ci_lower  = exp(miss_model_trust_sci$ci.lower),
+  ci_upper  = exp(miss_model_trust_sci$ci.upper),
+  p_value   = miss_model_trust_sci$prob
+)
+
+```
+A penalised logistic regression model was used to account for sparse categories and separation issues. Results indicate that missingness in the trust-in-scientists battery is systematically structured. Older respondents were significantly less likely to exhibit whole-battery missingness, and gender differences were also observed, with one group showing a lower probability of omission. Completion duration was positively associated with missingness, although the effect size was small. In contrast, education was not a robust predictor once modelled categorically. A survey-administration variable (Response Type) exhibited near-perfect separation and was therefore interpreted as a structural artefact rather than a substantive determinant of missingness.
+
+Taken together, these findings suggest that missingness is neither Missing Completely at Random (MCAR) nor purely item-level. Instead, it reflects a combination of respondent characteristics, survey engagement, and design-driven processes operating at the battery level.
 
 ## Response Distributions (Erik Paessler)
 
