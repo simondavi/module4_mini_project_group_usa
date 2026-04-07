@@ -24,6 +24,8 @@ format:
     toc-location: left
     theme: cosmo
     html-math-method: katex
+csl: https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl
+bibliography: references.bib
 ---
 
 
@@ -429,9 +431,8 @@ Discuss central findings shortly! Make some statements on your final decision in
 
 ## References (ALL)
 
-Place citable refs (used packages and literature) here.
-[How to add appendices](https://quarto.org/docs/authoring/appendices.html)
-
+::: {#refs}
+:::
 
 ::: {.callout-important appearance="default"}
 
