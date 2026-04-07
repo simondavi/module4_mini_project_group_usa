@@ -148,7 +148,7 @@ Not all calculations can be performed using the pre-processed data, as some info
 
 ### Compute Indices
 
-*Science-related populist attitudes* were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree; Mede, Schäfer, & Füchslin, 2021), aggregated with the Goertz approach (Wuttke et al., 2020)
+*Science-related populist attitudes* were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree; [@mede2020], aggregated with the Goertz approach (Wuttke et al., 2020)
 
 ```{r}
 ####  ------------ Compute Indices ------------ ####

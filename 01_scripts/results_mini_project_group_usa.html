@@ -60,7 +60,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="results_mini_project_group_usa_files/libs/clipboard/clipboard.min.js"></script>
@@ -132,14 +152,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">25.03.2026</p>
+      <p class="date">07.04.2026</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">25.03.2026</p>
+      <p class="date-modified">07.04.2026</p>
     </div>
   </div>
     
@@ -182,7 +202,7 @@ Pay Attention Please!
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------- Read Data ------------- ####</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># There are two versions of the data (!!!):</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># There are two versions of the data (!!!): hallo</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># data_raw: The raw dataset (N = 167,101) before any cleaning and transformations.</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
@@ -271,7 +291,7 @@ Pay Attention Please!
 </section>
 <section id="compute-indices" class="level3">
 <h3 class="anchored" data-anchor-id="compute-indices">Compute Indices</h3>
-<p><em>Science-related populist attitudes</em> were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree; Mede, Schäfer, &amp; Füchslin, 2021), aggregated with the Goertz approach (Wuttke et al., 2020)</p>
+<p><em>Science-related populist attitudes</em> were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree; <span class="citation" data-cites="mede2020">(<a href="#ref-mede2020" role="doc-biblioref">Mede et al., 2020</a>)</span>, aggregated with the Goertz approach (Wuttke et al., 2020)</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------ Compute Indices ------------ ####</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1030,7 +1050,11 @@ Count of outliers (speeding factor &gt; 2): 1951 </code></pre>
 </section>
 <section id="references-all" class="level2">
 <h2 class="anchored" data-anchor-id="references-all">References (ALL)</h2>
-<p>Place citable refs (used packages and literature) here. <a href="https://quarto.org/docs/authoring/appendices.html">How to add appendices</a></p>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-mede2020" class="csl-entry" role="listitem">
+Mede, N. G., Schäfer, M. S., &amp; Füchslin, T. (2020). The SciPop scale for measuring science-related populist attitudes in surveys: Development, test, and validation. <em>International Journal of Public Opinion Research</em>, <em>33</em>(2), 273–293. <a href="https://doi.org/10.1093/ijpor/edaa026">https://doi.org/10.1093/ijpor/edaa026</a>
+</div>
+</div>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
