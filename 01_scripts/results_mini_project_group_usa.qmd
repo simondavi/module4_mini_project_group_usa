@@ -378,17 +378,190 @@ Leiner, Dominik J.. “Too Fast, too Straight, too Weird: Non-Reactive Indicator
 
 Mede, N.G., Cologna, V., Berger, S. et al. Perceptions of science, science communication, and climate change attitudes in 68 countries – the TISP dataset. Sci Data 12, 114 (2025). https://doi.org/10.1038/s41597-024-04100-7
 
-## Missing Data (YOUR NAME)
+## Missing Data (Ana)
 
 The third kind of data quality indicators are missing data. How much data is missing, which data missing pattern occurs and are there cases with many missing data? (in respect to your choosen instrument(s) / variable(s)).
 
 ```{r}
+trust_sci_usa <- ds_usa |>
+  dplyr::select(dplyr::starts_with("TRUST_SCI_"))
 
+clim_gov_usa <- ds_usa |>
+  dplyr::select(dplyr::starts_with("CLIM_GOV_"))
 
+clim_emo_usa <- ds_usa |>
+  dplyr::select(dplyr::starts_with("CLIM_EMO_"))
+
+scipop_usa <- ds_usa |>
+  dplyr::select(dplyr::starts_with("SCIPOP_"))
+
+missing_diag_usa <- ds_usa |>
+  dplyr::select(
+    dplyr::starts_with("TRUST_SCI_"),
+    dplyr::starts_with("CLIM_GOV_"),
+    dplyr::starts_with("CLIM_EMO_"),
+    dplyr::starts_with("SCIPOP_")
+  )
 
 ```
 
+```{r}
+visdat::vis_miss(missing_diag_usa)
+naniar::gg_miss_var(missing_diag_usa, show_pct = TRUE)
+naniar::gg_miss_upset(missing_diag_usa)
+VIM::aggr(missing_diag_usa) |> plot(numbers = TRUE, prop = FALSE)
 
+```
+These plots indicate that missingness is very limited and does not show evidence of major respondent-level or battery-level nonresponse.
+```
+#Person-level Missingness
+
+```{r}
+n_miss_per_case <- is.na(missing_diag_usa) |>
+  as_tibble() |>
+  rowSums()
+
+missing_cases_usa <- tibble(
+  respondent_id = seq_len(nrow(missing_diag_usa)),
+  n_missing = n_miss_per_case
+)
+
+summary(missing_cases_usa$n_missing)
+
+missing_cases_usa |>
+  dplyr::filter(n_missing == ncol(missing_diag_usa)) |>
+  print(n = 100)
+
+naniar::gg_miss_case(missing_diag_usa, show_pct = TRUE)
+
+missing_cases_usa |>
+  dplyr::filter(n_missing > 0) |>
+  dplyr::arrange(dplyr::desc(n_missing)) |>
+  print(n = 100)
+
+missing_cases_usa |>
+  dplyr::summarise(
+    n_with_any_missing = sum(n_missing > 0),
+    pct_with_any_missing = mean(n_missing > 0) * 100
+  )
+
+```
+These plots indicate that missingness is very limited and does not show evidence of major respondent-level or battery-level nonresponse.
+
+```{r}
+battery_missing_summary <- tibble(
+  battery = c("TRUST_SCI", "CLIM_GOV", "CLIM_EMO", "SCIPOP"),
+  n_items = c(
+    ncol(trust_sci_usa),
+    ncol(clim_gov_usa),
+    ncol(clim_emo_usa),
+    ncol(scipop_usa)
+  ),
+  mean_pct_missing = c(
+    mean(is.na(as.matrix(trust_sci_usa))) * 100,
+    mean(is.na(as.matrix(clim_gov_usa))) * 100,
+    mean(is.na(as.matrix(clim_emo_usa))) * 100,
+    mean(is.na(as.matrix(scipop_usa))) * 100
+  )
+)
+
+battery_missing_summary
+
+```
+Missingness was negligible across all four batteries, with average item nonresponse ranging from 0.013% to 0.070%.
+
+#Item-Level Missingness
+
+```{r}
+item_missing_usa <- missing_diag_usa |>
+  dplyr::summarise(
+    across(everything(), ~ mean(is.na(.x)) * 100)
+  ) |>
+  tidyr::pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "pct_missing"
+  ) |>
+  dplyr::arrange(dplyr::desc(pct_missing))
+
+item_missing_usa
+
+ggplot(item_missing_usa, aes(x = reorder(variable, pct_missing), y = pct_missing)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(
+    x = "Variable",
+    y = "% missing",
+    title = "Item-level missingness in selected USA survey batteries"
+  ) +
+  theme_minimal()
+
+```
+Case-level diagnostics indicated that respondent-level nonresponse was negligible. No respondent was missing all selected items, and the maximum number of missing items for any individual respondent was four.
+
+# Domain-level missingness
+
+```{r}
+domain_missing_usa <- ds_usa |>
+  dplyr::transmute(
+    miss_trust_sci = as.integer(dplyr::if_all(dplyr::starts_with("TRUST_SCI_"), is.na)),
+    miss_clim_gov  = as.integer(dplyr::if_all(dplyr::starts_with("CLIM_GOV_"), is.na)),
+    miss_clim_emo  = as.integer(dplyr::if_all(dplyr::starts_with("CLIM_EMO_"), is.na)),
+    miss_scipop    = as.integer(dplyr::if_all(dplyr::starts_with("SCIPOP_"), is.na))
+  )
+
+domain_missing_usa |>
+  dplyr::summarise(dplyr::across(everything(), sum))
+
+cor(domain_missing_usa)
+round(cor(domain_missing_usa), 3)
+
+
+```
+Domain-level missingness was effectively absent. No respondents were missing an entire battery, so the battery-level missingness indicators showed no meaningful variation.
+
+# Complete-case Restriction
+```{r}
+complete_cases_usa <- missing_diag_usa |>
+  tidyr::drop_na()
+
+nrow(missing_diag_usa)
+nrow(complete_cases_usa)
+
+tibble(
+  total_cases = nrow(missing_diag_usa),
+  complete_cases = nrow(complete_cases_usa),
+  cases_dropped = nrow(missing_diag_usa) - nrow(complete_cases_usa),
+  pct_dropped = (nrow(missing_diag_usa) - nrow(complete_cases_usa)) / nrow(missing_diag_usa) * 100
+)
+
+```
+Complete-case restriction produced almost no loss of information: only 17 respondents were excluded, corresponding to 0.66% of the USA sample.
+
+Although I also estimated a logistic model predicting full battery nonresponse, this model is reported only as a diagnostic. Because no respondents were missing the entire trust-in-science battery, the dependent variable showed no variation and the model is not substantively informative.
+
+```{r}
+miss_model_trust_sci <- glm(
+  miss_trust_sci ~ DEM_AGE + DEM_EDU + DEM_POL_right,
+  data = dplyr::bind_cols(ds_usa, domain_missing_usa),
+  family = binomial()
+)
+
+summary(miss_model_trust_sci)
+
+dplyr::bind_cols(ds_usa, domain_missing_usa) |>
+  dplyr::count(miss_trust_sci)
+
+dplyr::bind_cols(ds_usa, domain_missing_usa) |>
+  dplyr::filter(
+    !is.na(DEM_AGE),
+    !is.na(DEM_EDU),
+    !is.na(DEM_POL_right)
+  ) |>
+  dplyr::count(miss_trust_sci)
+```
+As expected, the model was not informative because the dependent variable displayed no variation in either the full USA sample or the estimation sample. No respondents were missing the entire trust-in-science battery, confirming that full battery nonresponse was absent rather than systematically structured by respondent characteristics.
 
 ## Response Distributions (YOUR NAME)
 
