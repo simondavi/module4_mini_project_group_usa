@@ -142,7 +142,7 @@ Not all calculations can be performed using the pre-processed data, as some info
 1. Duplicate respondents were excluded: `r round(per_rem1, 2)`%
 2. Age values outside the range of 18 to 100 were set to NA: `r round(per_out, 2)`%
 3. Gender was recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
-4. Only particpiants were included who reached the beginning of the actualy questionaire (= question 1: DEM_GENDER): `r round(per_rem2, 2)`%
+4. Only participants were included who reached the beginning of the actual questionnaire (= question 1: DEM_GENDER): `r round(per_rem2, 2)`%
 
 Since the analysis-ready dataset `data` was too limited, we performed all calculations on the dataset `data_raw`.
 
