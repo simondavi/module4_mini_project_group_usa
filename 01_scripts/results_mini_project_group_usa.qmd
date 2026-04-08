@@ -30,7 +30,7 @@ bibliography: references.bib
 
 ## Introduction (ALL)
 
-*Science-related populism* has been conceptualized as a set of ideas suggesting a fundamental conflict between an allegedly virtuous people and an allegedly immoral academic elite over who should be in charge of science-related decision-making and over what is deemed true knowledge” [@mede2020].
+*Science-related populism* has been conceptualized as a set of ideas suggesting a fundamental conflict between an allegedly virtuous people and an allegedly immoral academic elite over who should be in charge of science-related decision-making and over what is deemed true knowledge [@mede2020].
 
 Conceptually, science-related populism consists of four major components: 
 
@@ -144,7 +144,7 @@ Not all calculations can be performed using the pre-processed data, as some info
 3. Gender was recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
 4. Only participants were included who reached the beginning of the actual questionnaire (= question 1: DEM_GENDER): `r round(per_rem2, 2)`%
 
-Since the analysis-ready dataset `data` was too limited, we performed all calculations on the dataset `data_raw`.
+We performed all calculations on this dataset `data_raw`.
 
 ### Compute Indices
 
