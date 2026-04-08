@@ -448,15 +448,236 @@ The fourth kind of data quality indicators are response distributions. Which ind
 
 
 
-## Response Styles (YOUR NAME)
+## Response Styles (Josefina Sommer)
 
 The last kind of data quality indicators are response styles. Which style(s) do you want to focus on and how do you flag concerning cases?
 
+To enable coherent analyses of response styles (1.) and patterns (2.), the longest possible sequence of 5pt Likert scale items entailing our focal scale - the SCIPOP scale - was used. I deliberately chose not to harmonize these items, allowing the authentic capture of natural differences in scale use across items without introducing artefactual distortions through rescaling. This preserves the ordinal nature of the data as well as item-specific variance, which is essential for the precise identification of patterns.
+
+### 1. Response Styles
 ```{r}
 
+#load packages, if not installed, install first
+packages <- c("resquin", "gt", "ggcorrplot")
 
+for (pkg in packages) {
+  if (!require(pkg, quietly = TRUE, character.only = TRUE)) {
+    install.packages(pkg, dependencies = TRUE)
+    library(pkg, character.only = TRUE)
+  }
+}
+
+# 1: Response styles
+all5pt <- data_raw %>%
+select(ID_QUALTRICS, starts_with("GOALS_PRIO_"),
+starts_with("GOALS_TACKLE_"),
+starts_with("NORMPERC_"),
+starts_with("WILLVUL_"),
+TRUST_METHOD,
+TRUST_PEW,
+starts_with("OUTSPOKEN_"),
+starts_with("SCIPOP_"))
+
+# Numeric IDs
+all5pt <- all5pt %>%
+mutate(ID_num = as.integer(row_number()))
+
+all5pt_only <- all5pt %>%
+select(starts_with("GOALS_PRIO_"),
+starts_with("GOALS_TACKLE_"),
+starts_with("NORMPERC_"),
+starts_with("WILLVUL_"),
+TRUST_METHOD,
+TRUST_PEW,
+starts_with("OUTSPOKEN_"),
+starts_with("SCIPOP_")) %>%
+mutate(across(everything(), ~ as.integer(as.numeric(.)))) # Safe Integer-Konversion
+
+all5pt_RS <- all5pt_only %>%
+  resp_styles(
+    scale_min = 1,
+    scale_max = 5,
+    id = all5pt$ID_num
+  )
+
+# Missings?
+all5pt_RS_missing <- all5pt_RS %>%
+  select(-id) %>%       
+  summarise(across(everything(), ~ sum(is.na(.)))) %>%
+  pivot_longer(cols = everything(),
+               names_to = "Indicator",
+               values_to = "Missing_Count") %>%
+  mutate(
+    Total = nrow(all5pt),                
+    Missing_Percent = Missing_Count / Total * 100
+  )
+
+all5pt_RS_missing 
+
+# rerun analyses with allowing 50% of items to be unanswered to check if there are less missings then
+min_prop <- 0.5
+
+all5pt_RS2 <- all5pt_only %>%
+  resp_styles(
+    scale_min = 1,
+    scale_max = 5,
+    id = all5pt$ID_num,
+    min_valid_responses = min_prop
+  )
+
+all5pt_RS2_missing <- all5pt_RS2 %>%
+  select(-id) %>%       
+  summarise(across(everything(), ~ sum(is.na(.)))) %>%
+  pivot_longer(cols = everything(),
+               names_to = "Indicator",
+               values_to = "Missing_Count") %>%
+  mutate(
+    Total = nrow(all5pt),                
+    Missing_Percent = Missing_Count / Total * 100
+  )
+
+all5pt_RS2_missing 
+
+# does not change much (from 23.3% to 22.0% => decide to drop all of them)
 
 ```
+
+23.3% of U.S. participants do not have response style indicators due to missing answers, as the minimum proportion of valid responses was set to 100%. Reducing this threshold (e.g., to 50%) only marginally decreased the proportion of missing response style indicators (to approximately 22%). Given this negligible gain in sample size, alongside the increased arbitrariness in threshold selection, I retained the more stringent criterion of complete responses and excluded all cases with any missing values.
+Accordingly, only respondents who answered all 5-point items (GOALS_PRIO_, GOALS_TACKLE_, NORMPERC_, WILLVUL_, etc.) were included in the response style analyses, resulting in the exclusion of roughly 23% of the sample. The subsequent exploratory analyses of response styles and response patterns are therefore based on the remaining 3.562 respondents.
+
+```{r}
+all5pt_RS_clean <- all5pt_RS %>%
+  drop_na()
+
+# Summary
+str(all5pt_RS_clean)
+head(all5pt_RS_clean)
+
+# Plot Response styles
+all5pt_RS_clean %>%
+  select(-id) %>%
+  pivot_longer(everything()) %>%
+  ggplot(aes(value*100))+
+  geom_histogram(fill = "steelblue", color = "white") +
+  facet_wrap(vars(name))+
+  labs(x = "% of respondents responses",
+       y = "Count")+
+  theme_classic(base_size = 15)
+```
+
+For ARS (tendency to agree), responses are spread across the full range, with moderate peaks at both low and high percentages, indicating that some respondents rarely agree uniformly, while others tend to agree frequently.
+
+DRS (tendency to disagree) shows a strong concentration near 0%, meaning that very few respondents systematically disagree with items, while some show moderate use of this style.
+
+ERS (extreme response style) also spans a wide range but has visible peaks toward 0% and 100%, suggesting that some respondents either avoid or predominantly use extreme endpoints.
+
+MRS (midpoint response style) shows higher frequencies near 0% and 100%, indicating that many respondents either rarely or frequently choose the midpoint option.
+
+NERS (non-extreme response style) similarly displays peaks toward both extremes, implying that respondents either rarely or frequently avoid extreme categories.
+
+### 2. Response patterns
+```{r}
+# 2: Response patterns
+all5pt_RP <- all5pt_only %>%
+  resp_patterns(
+    id = all5pt$ID_num
+    )
+
+str(all5pt_RP)
+head(all5pt_RP)
+
+# Missings?
+ all5pt_RP %>%
+     select(-id) %>%
+   summarise(across(everything(), ~ sum(is.na(.)))) %>%
+   pivot_longer(everything(),
+               names_to = "Indicator",
+                values_to = "Missing_Count") %>%
+   mutate(
+     Total = nrow(all5pt_RP),
+     Missing_Percent = Missing_Count / Total * 100
+   )
+# Missing_patterns, drop
+ all5pt_RP_clean <- all5pt_RP %>%
+   drop_na() # see above
+ 
+```
+
+To flag potentially suspect respondents, I focused on two response pattern indicators: longest string length and number of transitions between different response options.
+Longest string length captures over‑consistent response patterns, while the number of transitions indicate how much respondents switch between options.
+
+``` {r}
+# 3: Flagging
+
+# Data‑driven flagging of potentially suspect respondents
+all5pt_RP_clean <- all5pt_RP_clean %>%
+  mutate(
+    thresh_long = quantile(longest_string_length, 0.95),
+    thresh_low_trans = quantile(n_transitions, 0.05),
+    flag_suspect = as.numeric(
+      longest_string_length >= thresh_long |
+      n_transitions <= thresh_low_trans
+    )
+  )
+
+thresholds <- all5pt_RP_clean %>%
+  slice(1) %>%  
+  select(thresh_long, thresh_low_trans)
+
+thresholds
+
+# Attach the flag to all5pt_RS_clean
+all5pt_RS_clean <- all5pt_RS_clean %>%
+  left_join(
+    all5pt_RP_clean %>% select(id, flag_suspect),
+    by = "id"
+  )
+
+# How many respondents are flagged as suspicious?
+all5pt_RP_clean %>%
+  summarise(
+    n_total = n(),
+    n_suspect = sum(flag_suspect),
+    prop_suspect = mean(flag_suspect)
+  )
+
+# Plot Response patterns
+all5pt_RP_clean %>%
+  select(-id, -thresh_long, -thresh_low_trans) %>%
+  pivot_longer(
+    cols = c(n_transitions, longest_string_length),
+    names_to = "indicator",
+    values_to = "value"
+  ) %>%
+  mutate(
+    indicator = case_when(
+      indicator == "longest_string_length" ~ "Longest string",
+      indicator == "n_transitions" ~ "Transitions",
+      TRUE ~ indicator
+    )
+  ) %>%
+  ggplot(aes(value, fill = factor(flag_suspect))) +
+  geom_histogram(bins = 30, alpha = 0.7, position = "identity") +
+  facet_wrap(vars(indicator), scales = "free_x", nrow = 1) +
+  scale_fill_manual(
+    values = c("0" = "steelblue", "1" = "firebrick"),  
+    labels = c("0" = "Not suspicious", "1" = "Suspicious"), 
+    name = "Status" 
+  ) +
+  labs(x = "Indicator value", y = "Number of respondents") +
+  theme_classic(base_size = 15)
+
+```
+
+For each indicator, the top 5% or bottom 5% of the distribution were defined as ‘extreme’.
+A respondent was flagged as potentially suspect if at least one of these two indicators was in the respective extreme tail.
+This approach emphasizes unusual response patterns rather than specific response styles (e.g., extreme or mid‑point responding) and may therefore be less confounded with substantive attitudes. I flagged potentially careless respondents complemented by low transition counts, capturing monotonous responding.
+
+Respondents in the extreme 5% tails were marked as suspicious: top 5% longest string length OR bottom 5% transitions. 
+This data-driven approach prioritizes response patterns over style indicators (ERS/MRS), reducing confounding with substantive attitudes.
+
+Out of 3.562 complete cases, this identified 259 respondents (roughly 7%) as potentially careless.
+
 
 ## All together (ALL)
 
@@ -471,6 +692,16 @@ Now that you have different flags you may want to combine them. Which combinatio
 ## Discuss (ALL)
 
 Discuss central findings shortly! Make some statements on your final decision in respect to include/exclude rules (cutoffs/thresholds/filter combination), data loss, consequences for planned analyses, and any notable what you like to adress.
+
+
+
+
+### Response Styles and Patterns
+Response styles and pattern analyses based on a broad set of 5-point Likert items revealed substantial heterogeneity in scale use across respondents. To ensure reliable estimation, analyses were restricted to complete cases, resulting in the exclusion of approximately 23% of the sample; lowering the minimum response threshold did not meaningfully reduce data loss.
+
+While response style indicators (e.g., agreement, midpoint, and extreme responding) showed considerable variation, potentially suspect cases were primarily identified using response pattern indicators. Specifically, respondents were flagged based on extreme values in longest response strings and low numbers of response transitions, capturing overly consistent or monotonous answering behavior.
+
+Using this conservative, data-driven approach, approximately 7% of the 3.562 respondents were identified as potentially careless. By focusing on response patterns rather than style indicators, this strategy reduces confounding with substantive attitudes and complements other data quality measures such as attention checks and paradata.
 
 
 ## References (ALL)
