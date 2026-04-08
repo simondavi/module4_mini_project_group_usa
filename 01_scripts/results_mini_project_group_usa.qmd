@@ -10,7 +10,6 @@ author:
   - name: Elnari Potgieter
   - name: David Simon
   - name: Ana Cristancho
-  - name: Lukas Rädle
   - name: Erik Paessler
 format:
   html:
@@ -132,23 +131,23 @@ The following packages are used in this script.
 installed.packages()[names(sessionInfo()$otherPkgs), "Version"]
 ```
 
-Two datasets are used:
+Two datasets are read:
 
-- `data_raw`: The raw dataset (N = 167,101) before any cleaning or transformations.
-- `data`: The analysis-ready dataset (N = 69,534), including post-stratification.
+- `data_raw`: The raw dataset before any cleaning or transformations.
+- `data`: The analysis-ready dataset, including post-stratification.
 
 Not all calculations can be performed using the pre-processed data, as some information is already missing. Therefore, the raw data were processed as follows:
 
 1. Duplicate respondents were excluded: `r round(per_rem1, 2)`%
 2. Age values outside the range of 18 to 100 were set to NA: `r round(per_out, 2)`%
 3. Gender was temporarily recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
-4. tbc
+4. Only particpiants were included who reached the beginning of the actualy questionaire (= question 1: )
 
-*Note to the group: I think most calculations should be done with the file 'data_raw'.*
+Since the analysis-ready dataset `data` was too limited, we performed all calculations on the dataset `data_raw`.
 
 ### Compute Indices
 
-*Science-related populist attitudes* were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree; [@mede2020], aggregated with the Goertz approach (Wuttke et al., 2020)
+*Science-related populist attitudes* were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree [@mede2020], aggregated with the Goertz approach (Wuttke et al., 2020)
 
 ```{r}
 ####  ------------ Compute Indices ------------ ####
