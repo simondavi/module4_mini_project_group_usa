@@ -213,9 +213,9 @@ Using the provided code by Mede et al. [-@mede2025], the first attention of writ
 
 `r round(attcheck2.fails(data_raw$ATTCHECK_RES), 0)`% of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.
 
-So, the data set is partially filtered by design: Participants who failed the first attention check were redirected to the end of the survey and did not participate further. Consequently, they are not included among those who answered the Attitudes-Scale.
+So, the data set is partially filtered by design: Participants who failed the first attention check were redirected to the end of the survey and did not participate further. Consequently, they are not included among those who answered the scale of science-related populist attitudes.
 
-The second attention check was part of the Attitudes-Scale and is therefore particularly interesting for this assignment. Participants who failed the second attention check were also redirected to the end of the survey. The attention check was the last item on the scale. 
+The second attention check was part of the scale of science-related populist attitudes and is therefore particularly interesting for this assignment. Participants who failed the second attention check were also redirected to the end of the survey. The attention check was the last item on the scale. 
 
 Several participants answered the questions incorrectly and were flagged as having failed by the authors. One could argue about whether these were truly careless respondents. This is particularly questionable for those who wrote the correct number in words instead of as a number, e.g., "two hundred thirteen.", one person used a lowercase L instead of 1. Others are more likely to be careless, e.g. "Very nice to have a good time at your new office and I love love you bye bye good mama bye mama good night too love love you". Others stay unclear or "missing", e.g. "i don't know". The following table provides an overview about the frequency: 
 
