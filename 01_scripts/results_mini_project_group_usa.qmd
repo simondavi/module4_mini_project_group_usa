@@ -148,11 +148,9 @@ Since the analysis-ready dataset `data` was too limited, we performed all calcul
 
 ### Compute Indices
 
-*Science-related populist attitudes* were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree [@mede2020], aggregated with the Goertz approach [@wuttke2020].
+*Science-related populist attitudes* were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree) [@mede2020], aggregated with the Goertz approach [@wuttke2020]. The script was privided by Mede et al. [-@mede2025].
 
 ```{r}
-####  ------------ Compute Indices ------------ ####
-
 # SCIPOP_goertz: Science-related populist attitudes
 
 # Compute overall and dimension scores
@@ -211,7 +209,7 @@ attcheck2.fails <- function(attcheck2){
 }
 ```
 
-Using the provided code by Mede [-@mede2020], the first attention of writing “213” into a text box was failed by `r round(attcheck1.fails(data_raw$ATTCHECK_NUMBER), 0)`% of participants and
+Using the provided code by Mede et al. [-@mede2025], the first attention of writing “213” into a text box was failed by `r round(attcheck1.fails(data_raw$ATTCHECK_NUMBER), 0)`% of participants and
 
 `r round(attcheck2.fails(data_raw$ATTCHECK_RES), 0)`% of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.
 

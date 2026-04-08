@@ -291,31 +291,29 @@ div.csl-indent {
 </section>
 <section id="compute-indices" class="level3">
 <h3 class="anchored" data-anchor-id="compute-indices">Compute Indices</h3>
-<p><em>Science-related populist attitudes</em> were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree <span class="citation" data-cites="mede2020">(<a href="#ref-mede2020" role="doc-biblioref">Mede et al., 2020</a>)</span>, aggregated with the Goertz approach <span class="citation" data-cites="wuttke2020">(<a href="#ref-wuttke2020" role="doc-biblioref">Wuttke et al., 2020</a>)</span>.</p>
+<p><em>Science-related populist attitudes</em> were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree) <span class="citation" data-cites="mede2020">(<a href="#ref-mede2020" role="doc-biblioref">Mede et al., 2020</a>)</span>, aggregated with the Goertz approach <span class="citation" data-cites="wuttke2020">(<a href="#ref-wuttke2020" role="doc-biblioref">Wuttke et al., 2020</a>)</span>. The script was privided by Mede et al. <span class="citation" data-cites="mede2025">(<a href="#ref-mede2025" role="doc-biblioref">2025</a>)</span>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------ Compute Indices ------------ ####</span></span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SCIPOP_goertz: Science-related populist attitudes</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># SCIPOP_goertz: Science-related populist attitudes</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute overall and dimension scores</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute overall and dimension scores</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> data_raw <span class="sc">%&gt;%</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_PPL_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_common, SCIPOP_good)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_ELI_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_advantage, SCIPOP_cahoots)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_DEC_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_influence, SCIPOP_involved)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_TRU_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_lifeexp, SCIPOP_rely)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_goertz =</span> <span class="fu">pmin</span>(SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> labelled<span class="sc">::</span><span class="fu">set_variable_labels</span>(</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  data_raw,</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_goertz =</span> <span class="st">"Science-related populist attitudes: overall (Goertz score)"</span>,</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_PPL_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the ordinary people (mean)"</span>,</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_ELI_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the academic elite (mean)"</span>,</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_DEC_m =</span> <span class="st">"Science-related populist attitudes: demands for decision-making sovereignty (mean)"</span>,</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_TRU_m =</span> <span class="st">"Science-related populist attitudes: demands for truth-speaking sovereignty (mean)"</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> data_raw <span class="sc">%&gt;%</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_PPL_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_common, SCIPOP_good)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_ELI_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_advantage, SCIPOP_cahoots)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_DEC_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_influence, SCIPOP_involved)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_TRU_m =</span> <span class="fu">rowMeans</span>(<span class="fu">across</span>(<span class="fu">c</span>(SCIPOP_lifeexp, SCIPOP_rely)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">SCIPOP_goertz =</span> <span class="fu">pmin</span>(SCIPOP_PPL_m, SCIPOP_ELI_m, SCIPOP_DEC_m, SCIPOP_TRU_m, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> labelled<span class="sc">::</span><span class="fu">set_variable_labels</span>(</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  data_raw,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_goertz =</span> <span class="st">"Science-related populist attitudes: overall (Goertz score)"</span>,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_PPL_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the ordinary people (mean)"</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_ELI_m =</span> <span class="st">"Science-related populist attitudes: conceptions of the academic elite (mean)"</span>,</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_DEC_m =</span> <span class="st">"Science-related populist attitudes: demands for decision-making sovereignty (mean)"</span>,</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">SCIPOP_TRU_m =</span> <span class="st">"Science-related populist attitudes: demands for truth-speaking sovereignty (mean)"</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -638,7 +636,7 @@ div.csl-indent {
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>((<span class="dv">1</span> <span class="sc">-</span> ((n_valid <span class="sc">-</span> n_fails) <span class="sc">/</span> n_valid)) <span class="sc">*</span> <span class="dv">100</span>)</span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Using the provided code by Mede <span class="citation" data-cites="mede2020">(<a href="#ref-mede2020" role="doc-biblioref">2020</a>)</span>, the first attention of writing “213” into a text box was failed by 4% of participants and</p>
+<p>Using the provided code by Mede et al. <span class="citation" data-cites="mede2025">(<a href="#ref-mede2025" role="doc-biblioref">2025</a>)</span>, the first attention of writing “213” into a text box was failed by 4% of participants and</p>
 <p>27% of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.</p>
 <p>So, the data set is partially filtered by design: Participants who failed the first attention check were redirected to the end of the survey and did not participate further. Consequently, they are not included among those who answered the Attitudes-Scale.</p>
 <p>The second attention check was part of the Attitudes-Scale and is therefore particularly interesting for this assignment. Participants who failed the second attention check were also redirected to the end of the survey. The attention check was the last item on the scale.</p>
@@ -1076,6 +1074,9 @@ Count of outliers (speeding factor &gt; 2): 1681 </code></pre>
 <section id="references-all" class="level2">
 <h2 class="anchored" data-anchor-id="references-all">References (ALL)</h2>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-mede2025" class="csl-entry" role="listitem">
+Mede, N. G., Cologna, V., Berger, S., Besley, J., Brick, C., Joubert, M., Maibach, E. W., Mihelj, S., Oreskes, N., Schäfer, M. S., et al. (2025). Perceptions of science, science communication, and climate change attitudes in 68 countries–the TISP dataset. <em>Scientific Data</em>, <em>12</em>(1), 114.
+</div>
 <div id="ref-mede2020" class="csl-entry" role="listitem">
 Mede, N. G., Schäfer, M. S., &amp; Füchslin, T. (2020). The SciPop scale for measuring science-related populist attitudes in surveys: Development, test, and validation. <em>International Journal of Public Opinion Research</em>, <em>33</em>(2), 273–293. <a href="https://doi.org/10.1093/ijpor/edaa026">https://doi.org/10.1093/ijpor/edaa026</a>
 </div>
