@@ -28,27 +28,22 @@ bibliography: references.bib
 ---
 
 
-
 ## Introduction (ALL)
 
-This is an R-Quarto template which can be used for your final assignment task of KODAQS Academy, Course D2 Survey. [How to create citable article](https://quarto.org/docs/authoring/create-citeable-articles.html)<br>
-It contains prepared sections for each kind of data quality indicators. Choose an appropriate—for data quality related research questions—instrument from the construct ***Trust*** or ***Attitude***.
-For each data quality indicator, you have to select indices that are part of the dataset and/or can be calculated, and specify whether and how you will flag/filter cases. 
-Our final assignment task contains parts that should be worked on in a collaborative way (ALL) and parts that should worked on by individual team members (YOUR NAME).
-Each teammate should be responsible for at least one indicator section.
+*Science-related populism* has been conceptualized as a set of ideas suggesting a fundamental conflict between an allegedly virtuous people and an allegedly immoral academic elite over who should be in charge of science-related decision-making and over what is deemed true knowledge” [@mede2020].
 
+Conceptually, science-related populism consists of four major components: 
 
++ the ordinary people, 
++ the academic elite, 
++ science-related decision-making sovereignty, and 
++ truth-speaking sovereignty.
 
-::: {.callout-caution appearance="default"}
+This is the  final assignment task of KODAQS Academy, Course D2 Survey of "Team USA" <br>
 
-## Pay Attention Please!
-For our last WT prepare a short ppt-presentation (5-10 min max.) where you outline
-your analysis strategy (i.e. identified DQIs, and flagging/filtering rules) and show first findings/results. The preparation for and presention/participation on the weekly touchpoint is mandatory and weighs one third of your individual assignment grade.
-**WEEKLY TOUCHPOINT (mandatory) will take place on June 5th, 2025, 11–12 am CET**
+It contains sections for several kinds of data quality indicators  in regards to the construct above. 
 
-:::
-
-
+Some parts of the assignment were intended to be completed collaboratively and others individually, each teammate was responsible for at least one section of the indicator. Overall, we worked together constructively and collaboratively on this script. Consequently, the listed names do not fully capture the collaborative nature of the work, as all team members contributed across multiple sections.
 
 ## Data Preparation (ALL)
 
@@ -62,14 +57,9 @@ library(tidyverse)      # data management
 library(skimr)          # descriptives
 library(labelled)       # data labels
 library(psych)
+library(stringr)
 
 ####  ------------- Read Data ------------- ####
-
-# There are two versions of the data (!!!): hallo
-# 
-# data_raw: The raw dataset (N = 167,101) before any cleaning and transformations.
-#
-# data: The analysis-ready dataset (N = 69,534), including post-stratification weights:https://osf.io/5c3qd/wiki?wiki=fqmdn
 
 # data_raw
 data_raw <- read.csv(here("00_data/ds_full.csv"), sep = ";") %>%
@@ -121,12 +111,23 @@ data_raw <- data_raw  %>%
   mutate(DEM_GENDER = ifelse(DEM_GENDER == 1, 1, 0)) %>%
   mutate(DEM_GENDER = as.factor(DEM_GENDER))
 
+# (4.) Exclude respondents who did not reach the first question = DEM_GENDER
+data_raw_tmp <- data_raw %>%
+  filter(!is.na(DEM_GENDER))
+
+# % removed
+per_rem2 <- ((nrow(data_raw) - nrow(data_raw_tmp)) / nrow(data_raw)) * 100
+
+data_raw <- data_raw_tmp
+rm(data_raw_tmp)
+
 # data
 data <- read.csv(here("00_data/ds_final.csv"), sep = ";") %>%
   filter(COUNTRY_CODE == "USA")
 ```
 
-The following packages are used in this script.
+The following packages are used in this script:
+
 ```{r}
 installed.packages()[names(sessionInfo()$otherPkgs), "Version"]
 ```
@@ -140,14 +141,14 @@ Not all calculations can be performed using the pre-processed data, as some info
 
 1. Duplicate respondents were excluded: `r round(per_rem1, 2)`%
 2. Age values outside the range of 18 to 100 were set to NA: `r round(per_out, 2)`%
-3. Gender was temporarily recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
-4. Only particpiants were included who reached the beginning of the actualy questionaire (= question 1: )
+3. Gender was recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
+4. Only particpiants were included who reached the beginning of the actualy questionaire (= question 1: DEM_GENDER): `r round(per_rem2, 2)`%
 
 Since the analysis-ready dataset `data` was too limited, we performed all calculations on the dataset `data_raw`.
 
 ### Compute Indices
 
-*Science-related populist attitudes* were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree [@mede2020], aggregated with the Goertz approach (Wuttke et al., 2020)
+*Science-related populist attitudes* were measuered with 8 items on 4 dimensions on a 5-point scale each (1 = strongly disagree to 5 = strongly agree [@mede2020], aggregated with the Goertz approach [@wuttke2020].
 
 ```{r}
 ####  ------------ Compute Indices ------------ ####
@@ -174,6 +175,7 @@ data_raw <- labelled::set_variable_labels(
   SCIPOP_TRU_m = "Science-related populist attitudes: demands for truth-speaking sovereignty (mean)"
 )
 ```
+
 
 ## Descriptive Analysis (ALL)
 
@@ -209,9 +211,55 @@ attcheck2.fails <- function(attcheck2){
 }
 ```
 
-The first attention of writing “213” into a text box was failed by: `r round(attcheck1.fails(data_raw$ATTCHECK_NUMBER), 2)`% of participants.
+Using the provided code by Mede [-@mede2020], the first attention of writing “213” into a text box was failed by: `r round(attcheck1.fails(data_raw$ATTCHECK_NUMBER), 2)`% of participants and
 
 `r round(attcheck2.fails(data_raw$ATTCHECK_RES), 2)`%of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.
+
+So, the data set is partially filtered by design: Participants who failed the first attention check were redirected to the end of the survey and did not participate further. Consequently, they are not included among those who answered the Attitudes-Scale.
+
+The second attention check was part of the Attitudes-Scale scale and is therefore particularly interesting for this assignment. Participants who failed the second attention check were also redirected to the end of the survey. The attention check was the last item on the scale. 
+
+Several participants answered the questions incorrectly and were flagged as having failed by the authors. One could argue about whether these were truly careless respondents. This is particularly questionable for those who wrote the correct number in words instead of as a number, e.g., "two hundred thirteen.", one person used a lowercase L instead of 1.Others are more likely to be careless, e.g. "Very nice to have a good time at your new office and I love love you bye bye good mama bye mama good night too love love you". Others stay unclear or "missing", e.g. "i don't know". The following table provides an overview about the frequency: 
+
+```{r}
+attentioncheck_clean <- data_raw$ATTCHECK_NUMBER %>%
+  str_to_lower() %>%                       # all lowercase
+  str_trim() %>%                           # remove spaces
+  str_replace_all("’", "'") %>%            # remove apostrophes
+  str_replace_all("[[:punct:]]", " ") %>%  # remove punctuation characters
+  str_squish()                             # remove extra spaces
+
+# 2. Korrekte Antworten definieren
+attentioncheck_table <- case_when(
+  
+  # numeric variants
+  str_detect(attentioncheck_clean, "\\b213\\b|\\b2l3\\b") 
+  ~ "Correct",
+  
+  # numeric split with extra spaces / periods / commas
+  str_detect(attentioncheck_clean, "^2\\s*1\\s*3$") 
+  ~ "Correct",
+  
+  # word variants
+  str_detect(attentioncheck_clean,
+             "two.*hund.*thirt|two.*thirt|two.*one.*three|twoh.*thirt|twothirt|twoonethree|doscientos trece") 
+  ~ "Correct: written in words",
+  
+  # missing
+  attentioncheck_clean %in% c("", "none", "-99", "i don't know") |
+    !str_detect(attentioncheck_clean, "[0-9]") & 
+    !str_detect(attentioncheck_clean, "two|doscientos") ~ "Missing",
+  
+  # incorrect
+  TRUE ~ "Incorrect"
+)
+
+table(attentioncheck_table)
+prop <- prop.table(table(attentioncheck_table))
+```
+The amount of failures des zweiten attention checks sinkt dadurch von `r round(attcheck2.fails(data_raw$ATTCHECK_RES), 2)`% auf `r round(prop.table(prop)["Incorrect"] * 100, 2)`%.
+
+These are candidates of carless respondents and "flagged" in this section.
 
 ## Para Data (Elnari Potgieter)
 
