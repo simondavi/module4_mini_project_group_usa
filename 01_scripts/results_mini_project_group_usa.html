@@ -115,9 +115,16 @@ div.csl-indent {
   <li><a href="#para-data-elnari-potgieter" id="toc-para-data-elnari-potgieter" class="nav-link" data-scroll-target="#para-data-elnari-potgieter">Para Data (Elnari Potgieter)</a></li>
   <li><a href="#missing-data-your-name" id="toc-missing-data-your-name" class="nav-link" data-scroll-target="#missing-data-your-name">Missing Data (YOUR NAME)</a></li>
   <li><a href="#response-distributions-your-name" id="toc-response-distributions-your-name" class="nav-link" data-scroll-target="#response-distributions-your-name">Response Distributions (YOUR NAME)</a></li>
-  <li><a href="#response-styles-your-name" id="toc-response-styles-your-name" class="nav-link" data-scroll-target="#response-styles-your-name">Response Styles (YOUR NAME)</a></li>
+  <li><a href="#response-styles-josefina-sommer" id="toc-response-styles-josefina-sommer" class="nav-link" data-scroll-target="#response-styles-josefina-sommer">Response Styles (Josefina Sommer)</a>
+  <ul class="collapse">
+  <li><a href="#response-styles" id="toc-response-styles" class="nav-link" data-scroll-target="#response-styles">1. Response Styles</a></li>
+  <li><a href="#response-patterns" id="toc-response-patterns" class="nav-link" data-scroll-target="#response-patterns">2. Response patterns</a></li>
+  </ul></li>
   <li><a href="#all-together-all" id="toc-all-together-all" class="nav-link" data-scroll-target="#all-together-all">All together (ALL)</a></li>
-  <li><a href="#discuss-all" id="toc-discuss-all" class="nav-link" data-scroll-target="#discuss-all">Discuss (ALL)</a></li>
+  <li><a href="#discuss-all" id="toc-discuss-all" class="nav-link" data-scroll-target="#discuss-all">Discuss (ALL)</a>
+  <ul class="collapse">
+  <li><a href="#response-styles-and-patterns" id="toc-response-styles-and-patterns" class="nav-link" data-scroll-target="#response-styles-and-patterns">Response Styles and Patterns</a></li>
+  </ul></li>
   <li><a href="#references-all" id="toc-references-all" class="nav-link" data-scroll-target="#references-all">References (ALL)</a></li>
   </ul>
 </nav>
@@ -150,14 +157,14 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">08.04.2026</p>
+      <p class="date">09.04.2026</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">08.04.2026</p>
+      <p class="date-modified">09.04.2026</p>
     </div>
   </div>
     
@@ -170,7 +177,7 @@ div.csl-indent {
 
 <section id="introduction-all" class="level2">
 <h2 class="anchored" data-anchor-id="introduction-all">Introduction (ALL)</h2>
-<p><em>Science-related populism</em> has been conceptualized as a set of ideas suggesting a fundamental conflict between an allegedly virtuous people and an allegedly immoral academic elite over who should be in charge of science-related decision-making and over what is deemed true knowledge” <span class="citation" data-cites="mede2020">(<a href="#ref-mede2020" role="doc-biblioref">Mede et al., 2020</a>)</span>.</p>
+<p><em>Science-related populism</em> has been conceptualized as a set of ideas suggesting a fundamental conflict between an allegedly virtuous people and an allegedly immoral academic elite over who should be in charge of science-related decision-making and over what is deemed true knowledge <span class="citation" data-cites="mede2020">(<a href="#ref-mede2020" role="doc-biblioref">Mede et al., 2020</a>)</span>.</p>
 <p>Conceptually, science-related populism consists of four major components:</p>
 <ul>
 <li>the ordinary people,</li>
@@ -195,34 +202,37 @@ div.csl-indent {
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(labelled)       <span class="co"># data labels</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(psych)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------- Read Data ------------- ####</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># data_raw</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"00_data/ds_full.csv"</span>), <span class="at">sep =</span> <span class="st">";"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(COUNTRY_CODE <span class="sc">==</span> <span class="st">"USA"</span>)  <span class="sc">%&gt;%</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">na_if</span>(., <span class="dv">99</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.character), <span class="sc">~</span> <span class="fu">na_if</span>(., <span class="st">"99"</span>)))</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># raw data needs to be processed (a liitle bit)</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Source: https://osf.io/5c3qd/files/xz8bw</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(resquin)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggcorrplot)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">####  ------------- Read Data ------------- ####</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># data_raw</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>data_raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"00_data/ds_full.csv"</span>), <span class="at">sep =</span> <span class="st">";"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(COUNTRY_CODE <span class="sc">==</span> <span class="st">"USA"</span>)  <span class="sc">%&gt;%</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">na_if</span>(., <span class="dv">99</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.character), <span class="sc">~</span> <span class="fu">na_if</span>(., <span class="st">"99"</span>)))</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># (1.) Identify and exclude duplicate completes</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize ID data (stored in separate csv file)</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>ds_id <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"00_data/ds_id.csv"</span>), <span class="at">sep =</span> <span class="st">";"</span>) </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># raw data needs to be processed (a liitle bit)</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Source: https://osf.io/5c3qd/files/xz8bw</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># (1.) Identify and exclude duplicate completes</span></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>data_raw_tmp <span class="ot">&lt;-</span> <span class="fu">left_join</span>(data_raw, ds_id, <span class="at">by =</span> <span class="st">"ID_QUALTRICS"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ID_POLLCMPNY) <span class="sc">%&gt;%</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(ID_POLLCMPNY) <span class="sc">|</span> <span class="fu">row_number</span>(Recorded) <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Confirm that there are no duplicate completes (empty tibble)</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>data_raw_tmp <span class="sc">%&gt;%</span> </span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(ID_POLLCMPNY)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ID_POLLCMPNY) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize ID data (stored in separate csv file)</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>ds_id <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">here</span>(<span class="st">"00_data/ds_id.csv"</span>), <span class="at">sep =</span> <span class="st">";"</span>) </span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>data_raw_tmp <span class="ot">&lt;-</span> <span class="fu">left_join</span>(data_raw, ds_id, <span class="at">by =</span> <span class="st">"ID_QUALTRICS"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ID_POLLCMPNY) <span class="sc">%&gt;%</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(ID_POLLCMPNY) <span class="sc">|</span> <span class="fu">row_number</span>(Recorded) <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Confirm that there are no duplicate completes (empty tibble)</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>data_raw_tmp <span class="sc">%&gt;%</span> </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(ID_POLLCMPNY)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ID_POLLCMPNY) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 0 × 2
 # ℹ 2 variables: ID_POLLCMPNY &lt;chr&gt;, n &lt;int&gt;</code></pre>
@@ -269,10 +279,12 @@ div.csl-indent {
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">installed.packages</span>()[<span class="fu">names</span>(<span class="fu">sessionInfo</span>()<span class="sc">$</span>otherPkgs), <span class="st">"Version"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>    psych  labelled     skimr lubridate   forcats   stringr     dplyr     purrr 
-  "2.5.6"  "2.16.0"   "2.2.2"   "1.9.3"   "1.0.1"   "1.6.0"   "1.1.4"   "1.0.2" 
-    readr     tidyr    tibble   ggplot2 tidyverse      here 
-  "2.1.6"   "1.3.2"   "3.3.1"   "4.0.1"   "2.0.0"   "1.0.1" </code></pre>
+<pre><code>ggcorrplot         gt    resquin      psych   labelled      skimr  lubridate 
+ "0.1.4.1"    "1.3.0"    "0.1.1"    "2.5.6"   "2.16.0"    "2.2.2"    "1.9.3" 
+   forcats    stringr      dplyr      purrr      readr      tidyr     tibble 
+   "1.0.1"    "1.6.0"    "1.1.4"    "1.0.2"    "2.1.6"    "1.3.2"    "3.3.1" 
+   ggplot2  tidyverse       here 
+   "4.0.1"    "2.0.0"    "1.0.1" </code></pre>
 </div>
 </div>
 <p>Two datasets are read:</p>
@@ -287,7 +299,7 @@ div.csl-indent {
 <li>Gender was recoded into a binary variable (1 = male), with self-described responses excluded from this coding.</li>
 <li>Only participants were included who reached the beginning of the actual questionnaire (= question 1: DEM_GENDER): 6.13%</li>
 </ol>
-<p>Since the analysis-ready dataset <code>data</code> was too limited, we performed all calculations on the dataset <code>data_raw</code>.</p>
+<p>We performed all calculations on this dataset <code>data_raw</code>.</p>
 </section>
 <section id="compute-indices" class="level3">
 <h3 class="anchored" data-anchor-id="compute-indices">Compute Indices</h3>
@@ -638,8 +650,8 @@ div.csl-indent {
 </div>
 <p>Using the provided code by Mede et al. <span class="citation" data-cites="mede2025">(<a href="#ref-mede2025" role="doc-biblioref">2025</a>)</span>, the first attention of writing “213” into a text box was failed by 4% of participants and</p>
 <p>27% of participants who reached the second attention check of selecting “strongly disagree” for an extra item in a scale of science-related populist attitudes did not pass it.</p>
-<p>So, the data set is partially filtered by design: Participants who failed the first attention check were redirected to the end of the survey and did not participate further. Consequently, they are not included among those who answered the Attitudes-Scale.</p>
-<p>The second attention check was part of the Attitudes-Scale and is therefore particularly interesting for this assignment. Participants who failed the second attention check were also redirected to the end of the survey. The attention check was the last item on the scale.</p>
+<p>So, the data set is partially filtered by design: Participants who failed the first attention check were redirected to the end of the survey and did not participate further. Consequently, they are not included among those who answered the scale of science-related populist attitudes.</p>
+<p>The second attention check was part of the scale of science-related populist attitudes and is therefore particularly interesting for this assignment. Participants who failed the second attention check were also redirected to the end of the survey. The attention check was the last item on the scale.</p>
 <p>Several participants answered the questions incorrectly and were flagged as having failed by the authors. One could argue about whether these were truly careless respondents. This is particularly questionable for those who wrote the correct number in words instead of as a number, e.g., “two hundred thirteen.”, one person used a lowercase L instead of 1. Others are more likely to be careless, e.g.&nbsp;“Very nice to have a good time at your new office and I love love you bye bye good mama bye mama good night too love love you”. Others stay unclear or “missing”, e.g.&nbsp;“i don’t know”. The following table provides an overview about the frequency:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>attentioncheck_clean <span class="ot">&lt;-</span> data_raw<span class="sc">$</span>ATTCHECK_NUMBER <span class="sc">%&gt;%</span></span>
@@ -651,39 +663,38 @@ div.csl-indent {
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>attentioncheck_table <span class="ot">&lt;-</span> <span class="fu">case_when</span>(</span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># numeric variants</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_detect</span>(attentioncheck_clean, <span class="st">"</span><span class="sc">\\</span><span class="st">b213</span><span class="sc">\\</span><span class="st">b|</span><span class="sc">\\</span><span class="st">b2l3</span><span class="sc">\\</span><span class="st">b"</span>) </span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="st">"Correct"</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># missing</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">is.na</span>(attentioncheck_clean) <span class="sc">|</span> attentioncheck_clean <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"none"</span>, <span class="st">"i don t know"</span>) <span class="sc">|</span> attentioncheck_clean <span class="sc">==</span> <span class="st">"99"</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="st">"Missing"</span>,</span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># numeric split with extra spaces / periods / commas</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_detect</span>(attentioncheck_clean, <span class="st">"^2</span><span class="sc">\\</span><span class="st">s*1</span><span class="sc">\\</span><span class="st">s*3$"</span>) </span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># numeric variants</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_detect</span>(attentioncheck_clean, <span class="st">"</span><span class="sc">\\</span><span class="st">b213</span><span class="sc">\\</span><span class="st">b|</span><span class="sc">\\</span><span class="st">b2l3</span><span class="sc">\\</span><span class="st">b"</span>) </span>
 <span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="st">"Correct"</span>,</span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># word variants</span></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_detect</span>(attentioncheck_clean,</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>             <span class="st">"two.*hund.*thirt|two.*thirt|two.*one.*three|twoh.*thirt|twothirt|twoonethree|doscientos trece"</span>) </span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="st">"Correct: written in words"</span>,</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># missing</span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  attentioncheck_clean <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"none"</span>, <span class="st">"-99"</span>, <span class="st">"i don't know"</span>) <span class="sc">|</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">str_detect</span>(attentioncheck_clean, <span class="st">"[0-9]"</span>) <span class="sc">&amp;</span> </span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">str_detect</span>(attentioncheck_clean, <span class="st">"two|doscientos"</span>) <span class="sc">~</span> <span class="st">"Missing"</span>,</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># incorrect</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"Incorrect"</span></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(attentioncheck_table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># numeric split with extra spaces</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_detect</span>(attentioncheck_clean, <span class="st">"^2</span><span class="sc">\\</span><span class="st">s*1</span><span class="sc">\\</span><span class="st">s*3$"</span>) </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="st">"Correct"</span>,</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># word variants</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_detect</span>(attentioncheck_clean,</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>             <span class="st">"two.*hund.*thirt|two.*thirt|two.*one.*three|twoh.*thirt|twothirt|twoonethree|doscientos trece"</span>) </span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="st">"Correct: written in words"</span>,</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># incorrect</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"Incorrect"</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(attentioncheck_table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>attentioncheck_table
                   Correct Correct: written in words                 Incorrect 
-                     3753                        77                       518 
+                     3753                        77                        66 
                   Missing 
-                       14 </code></pre>
+                      466 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>prop <span class="ot">&lt;-</span> <span class="fu">prop.table</span>(<span class="fu">table</span>(attentioncheck_table))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The number of failures on the second attention check decreases from 27% to 12%.</p>
+<p>The number of failures on the second attention check decreases from 27% to 2%.</p>
 <p>These are candidates of carless respondents and therefore “flagged” in this section.</p>
 </section>
 <section id="para-data-elnari-potgieter" class="level2">
@@ -1059,9 +1070,298 @@ Count of outliers (speeding factor &gt; 2): 1681 </code></pre>
 <h2 class="anchored" data-anchor-id="response-distributions-your-name">Response Distributions (YOUR NAME)</h2>
 <p>The fourth kind of data quality indicators are response distributions. Which indicators do you deem relevant and which criterion do you use for flagging?</p>
 </section>
-<section id="response-styles-your-name" class="level2">
-<h2 class="anchored" data-anchor-id="response-styles-your-name">Response Styles (YOUR NAME)</h2>
+<section id="response-styles-josefina-sommer" class="level2">
+<h2 class="anchored" data-anchor-id="response-styles-josefina-sommer">Response Styles (Josefina Sommer)</h2>
 <p>The last kind of data quality indicators are response styles. Which style(s) do you want to focus on and how do you flag concerning cases?</p>
+<p>To enable coherent analyses of response styles (1.) and patterns (2.), the longest possible sequence of 5pt Likert scale items entailing our focal scale - the SCIPOP scale - was used. I deliberately chose not to harmonize these items, allowing the authentic capture of natural differences in scale use across items without introducing artefactual distortions through rescaling. This preserves the ordinal nature of the data as well as item-specific variance, which is essential for the precise identification of patterns.</p>
+<section id="response-styles" class="level3">
+<h3 class="anchored" data-anchor-id="response-styles">1. Response Styles</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1: Response styles</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>all5pt <span class="ot">&lt;-</span> data_raw <span class="sc">%&gt;%</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(ID_QUALTRICS, <span class="fu">starts_with</span>(<span class="st">"GOALS_PRIO_"</span>),</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="fu">starts_with</span>(<span class="st">"GOALS_TACKLE_"</span>),</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a><span class="fu">starts_with</span>(<span class="st">"NORMPERC_"</span>),</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a><span class="fu">starts_with</span>(<span class="st">"WILLVUL_"</span>),</span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>TRUST_METHOD,</span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>TRUST_PEW,</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a><span class="fu">starts_with</span>(<span class="st">"OUTSPOKEN_"</span>),</span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a><span class="fu">starts_with</span>(<span class="st">"SCIPOP_"</span>))</span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Numeric IDs</span></span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a>all5pt <span class="ot">&lt;-</span> all5pt <span class="sc">%&gt;%</span></span>
+<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(<span class="at">ID_num =</span> <span class="fu">as.integer</span>(<span class="fu">row_number</span>()))</span>
+<span id="cb52-15"><a href="#cb52-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-16"><a href="#cb52-16" aria-hidden="true" tabindex="-1"></a>all5pt_only <span class="ot">&lt;-</span> all5pt <span class="sc">%&gt;%</span></span>
+<span id="cb52-17"><a href="#cb52-17" aria-hidden="true" tabindex="-1"></a><span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">"GOALS_PRIO_"</span>),</span>
+<span id="cb52-18"><a href="#cb52-18" aria-hidden="true" tabindex="-1"></a><span class="fu">starts_with</span>(<span class="st">"GOALS_TACKLE_"</span>),</span>
+<span id="cb52-19"><a href="#cb52-19" aria-hidden="true" tabindex="-1"></a><span class="fu">starts_with</span>(<span class="st">"NORMPERC_"</span>),</span>
+<span id="cb52-20"><a href="#cb52-20" aria-hidden="true" tabindex="-1"></a><span class="fu">starts_with</span>(<span class="st">"WILLVUL_"</span>),</span>
+<span id="cb52-21"><a href="#cb52-21" aria-hidden="true" tabindex="-1"></a>TRUST_METHOD,</span>
+<span id="cb52-22"><a href="#cb52-22" aria-hidden="true" tabindex="-1"></a>TRUST_PEW,</span>
+<span id="cb52-23"><a href="#cb52-23" aria-hidden="true" tabindex="-1"></a><span class="fu">starts_with</span>(<span class="st">"OUTSPOKEN_"</span>),</span>
+<span id="cb52-24"><a href="#cb52-24" aria-hidden="true" tabindex="-1"></a><span class="fu">starts_with</span>(<span class="st">"SCIPOP_"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb52-25"><a href="#cb52-25" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span> <span class="fu">as.integer</span>(<span class="fu">as.numeric</span>(.)))) <span class="co"># Safe Integer-Konversion</span></span>
+<span id="cb52-26"><a href="#cb52-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-27"><a href="#cb52-27" aria-hidden="true" tabindex="-1"></a>all5pt_RS <span class="ot">&lt;-</span> all5pt_only <span class="sc">%&gt;%</span></span>
+<span id="cb52-28"><a href="#cb52-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">resp_styles</span>(</span>
+<span id="cb52-29"><a href="#cb52-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">scale_min =</span> <span class="dv">1</span>,</span>
+<span id="cb52-30"><a href="#cb52-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">scale_max =</span> <span class="dv">5</span>,</span>
+<span id="cb52-31"><a href="#cb52-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> all5pt<span class="sc">$</span>ID_num</span>
+<span id="cb52-32"><a href="#cb52-32" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb52-33"><a href="#cb52-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-34"><a href="#cb52-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Missings?</span></span>
+<span id="cb52-35"><a href="#cb52-35" aria-hidden="true" tabindex="-1"></a>all5pt_RS_missing <span class="ot">&lt;-</span> all5pt_RS <span class="sc">%&gt;%</span></span>
+<span id="cb52-36"><a href="#cb52-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>id) <span class="sc">%&gt;%</span>       </span>
+<span id="cb52-37"><a href="#cb52-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(.)))) <span class="sc">%&gt;%</span></span>
+<span id="cb52-38"><a href="#cb52-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">everything</span>(),</span>
+<span id="cb52-39"><a href="#cb52-39" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"Indicator"</span>,</span>
+<span id="cb52-40"><a href="#cb52-40" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"Missing_Count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb52-41"><a href="#cb52-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb52-42"><a href="#cb52-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">Total =</span> <span class="fu">nrow</span>(all5pt),                </span>
+<span id="cb52-43"><a href="#cb52-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">Missing_Percent =</span> Missing_Count <span class="sc">/</span> Total <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb52-44"><a href="#cb52-44" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb52-45"><a href="#cb52-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-46"><a href="#cb52-46" aria-hidden="true" tabindex="-1"></a>all5pt_RS_missing </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 4
+  Indicator Missing_Count Total Missing_Percent
+  &lt;chr&gt;             &lt;int&gt; &lt;int&gt;           &lt;dbl&gt;
+1 MRS                 817  4362            18.7
+2 ARS                 817  4362            18.7
+3 DRS                 817  4362            18.7
+4 ERS                 817  4362            18.7
+5 NERS                817  4362            18.7</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rerun analyses with allowing 50% of items to be unanswered to check if there are less missings then</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>min_prop <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>all5pt_RS2 <span class="ot">&lt;-</span> all5pt_only <span class="sc">%&gt;%</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">resp_styles</span>(</span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">scale_min =</span> <span class="dv">1</span>,</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">scale_max =</span> <span class="dv">5</span>,</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> all5pt<span class="sc">$</span>ID_num,</span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_valid_responses =</span> min_prop</span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>all5pt_RS2_missing <span class="ot">&lt;-</span> all5pt_RS2 <span class="sc">%&gt;%</span></span>
+<span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>id) <span class="sc">%&gt;%</span>       </span>
+<span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(.)))) <span class="sc">%&gt;%</span></span>
+<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">everything</span>(),</span>
+<span id="cb54-16"><a href="#cb54-16" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"Indicator"</span>,</span>
+<span id="cb54-17"><a href="#cb54-17" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"Missing_Count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb54-18"><a href="#cb54-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb54-19"><a href="#cb54-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Total =</span> <span class="fu">nrow</span>(all5pt),                </span>
+<span id="cb54-20"><a href="#cb54-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Missing_Percent =</span> Missing_Count <span class="sc">/</span> Total <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb54-21"><a href="#cb54-21" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb54-22"><a href="#cb54-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-23"><a href="#cb54-23" aria-hidden="true" tabindex="-1"></a>all5pt_RS2_missing </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 4
+  Indicator Missing_Count Total Missing_Percent
+  &lt;chr&gt;             &lt;int&gt; &lt;int&gt;           &lt;dbl&gt;
+1 MRS                 758  4362            17.4
+2 ARS                 758  4362            17.4
+3 DRS                 758  4362            17.4
+4 ERS                 758  4362            17.4
+5 NERS                758  4362            17.4</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># does not change much (from 23.3% to 22.0% =&gt; decide to drop all of them)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>23.3% of U.S. participants do not have response style indicators due to missing answers, as the minimum proportion of valid responses was set to 100%. Reducing this threshold (e.g., to 50%) only marginally decreased the proportion of missing response style indicators (to approximately 22%). Given this negligible gain in sample size, alongside the increased arbitrariness in threshold selection, I retained the more stringent criterion of complete responses and excluded all cases with any missing values. Accordingly, only respondents who answered all 5-point items (GOALS_PRIO_, GOALS_TACKLE_, NORMPERC_, WILLVUL_, etc.) were included in the response style analyses, resulting in the exclusion of roughly 23% of the sample. The subsequent exploratory analyses of response styles and response patterns are therefore based on the remaining 3.562 respondents.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>all5pt_RS_clean <span class="ot">&lt;-</span> all5pt_RS <span class="sc">%&gt;%</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary</span></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(all5pt_RS_clean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Classes 'resp_indicator', 'tbl' and 'data.frame':   3545 obs. of  6 variables:
+ $ id  : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ MRS : num  0.4286 0.4286 0.0857 0.7143 0 ...
+ $ ARS : num  0.2 0.571 0.914 0.229 1 ...
+ $ DRS : num  0.3714 0 0 0.0571 0 ...
+ $ ERS : num  0.171 0.171 0.571 0 1 ...
+ $ NERS: num  0.829 0.829 0.429 1 0 ...
+ - attr(*, "min_valid_responses")= num 1
+ - attr(*, "na_mask")= logi [1:4362] FALSE FALSE FALSE FALSE FALSE FALSE ...
+ - attr(*, "id")= logi FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(all5pt_RS_clean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Number of missings due to min_valid_responses equal to 1: 817
+# A data frame:                                             6 × 6
+     id    MRS   ARS    DRS   ERS  NERS
+* &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1     1 0.429  0.2   0.371  0.171 0.829
+2     2 0.429  0.571 0      0.171 0.829
+3     3 0.0857 0.914 0      0.571 0.429
+4     4 0.714  0.229 0.0571 0     1    
+5     5 0      1     0      1     0    
+6     6 0      1     0      0.486 0.514</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot Response styles</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>all5pt_RS_clean <span class="sc">%&gt;%</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>id) <span class="sc">%&gt;%</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">everything</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(value<span class="sc">*</span><span class="dv">100</span>))<span class="sc">+</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"steelblue"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(name))<span class="sc">+</span></span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"% of respondents responses"</span>,</span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Count"</span>)<span class="sc">+</span></span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>(<span class="at">base_size =</span> <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_mini_project_group_usa_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For ARS (tendency to agree), responses are spread across the full range, with moderate peaks at both low and high percentages, indicating that some respondents rarely agree uniformly, while others tend to agree frequently.</p>
+<p>DRS (tendency to disagree) shows a strong concentration near 0%, meaning that very few respondents systematically disagree with items, while some show moderate use of this style.</p>
+<p>ERS (extreme response style) also spans a wide range but has visible peaks toward 0% and 100%, suggesting that some respondents either avoid or predominantly use extreme endpoints.</p>
+<p>MRS (midpoint response style) shows higher frequencies near 0% and 100%, indicating that many respondents either rarely or frequently choose the midpoint option.</p>
+<p>NERS (non-extreme response style) similarly displays peaks toward both extremes, implying that respondents either rarely or frequently avoid extreme categories.</p>
+</section>
+<section id="response-patterns" class="level3">
+<h3 class="anchored" data-anchor-id="response-patterns">2. Response patterns</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 2: Response patterns</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>all5pt_RP <span class="ot">&lt;-</span> all5pt_only <span class="sc">%&gt;%</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">resp_patterns</span>(</span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> all5pt<span class="sc">$</span>ID_num</span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(all5pt_RP)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Classes 'resp_indicator', 'tbl' and 'data.frame':   4362 obs. of  4 variables:
+ $ id                   : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ n_transitions        : num  25 24 20 11 0 18 12 16 0 25 ...
+ $ mean_string_length   : num  1.35 1.4 1.67 2.92 35 ...
+ $ longest_string_length: int  3 3 6 10 35 6 8 7 35 4 ...
+ - attr(*, "min_valid_responses")= num 1
+ - attr(*, "na_mask")= logi [1:4362] FALSE FALSE FALSE FALSE FALSE FALSE ...
+ - attr(*, "id")= int [1:4362] 1 2 3 4 5 6 7 8 9 10 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(all5pt_RP)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Number of missings due to min_valid_responses equal to 1: 817
+# A data frame:                                             6 × 4
+     id n_transitions mean_string_length longest_string_length
+* &lt;int&gt;         &lt;dbl&gt;              &lt;dbl&gt;                 &lt;int&gt;
+1     1            25               1.35                     3
+2     2            24               1.4                      3
+3     3            20               1.67                     6
+4     4            11               2.92                    10
+5     5             0              35                       35
+6     6            18               1.84                     6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Missings?</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a> all5pt_RP <span class="sc">%&gt;%</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>     <span class="fu">select</span>(<span class="sc">-</span>id) <span class="sc">%&gt;%</span></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>   <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), <span class="sc">~</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(.)))) <span class="sc">%&gt;%</span></span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>   <span class="fu">pivot_longer</span>(<span class="fu">everything</span>(),</span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"Indicator"</span>,</span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">values_to =</span> <span class="st">"Missing_Count"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(</span>
+<span id="cb66-9"><a href="#cb66-9" aria-hidden="true" tabindex="-1"></a>     <span class="at">Total =</span> <span class="fu">nrow</span>(all5pt_RP),</span>
+<span id="cb66-10"><a href="#cb66-10" aria-hidden="true" tabindex="-1"></a>     <span class="at">Missing_Percent =</span> Missing_Count <span class="sc">/</span> Total <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb66-11"><a href="#cb66-11" aria-hidden="true" tabindex="-1"></a>   )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  Indicator             Missing_Count Total Missing_Percent
+  &lt;chr&gt;                         &lt;int&gt; &lt;int&gt;           &lt;dbl&gt;
+1 n_transitions                   817  4362            18.7
+2 mean_string_length              817  4362            18.7
+3 longest_string_length           817  4362            18.7</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Missing_patterns, drop</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a> all5pt_RP_clean <span class="ot">&lt;-</span> all5pt_RP <span class="sc">%&gt;%</span></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">drop_na</span>() <span class="co"># see above</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To flag potentially suspect respondents, I focused on two response pattern indicators: longest string length and number of transitions between different response options. Longest string length captures over‑consistent response patterns, while the number of transitions indicate how much respondents switch between options.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 3: Flagging</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Data‑driven flagging of potentially suspect respondents</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>all5pt_RP_clean <span class="ot">&lt;-</span> all5pt_RP_clean <span class="sc">%&gt;%</span></span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">thresh_long =</span> <span class="fu">quantile</span>(longest_string_length, <span class="fl">0.95</span>),</span>
+<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">thresh_low_trans =</span> <span class="fu">quantile</span>(n_transitions, <span class="fl">0.05</span>),</span>
+<span id="cb69-8"><a href="#cb69-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">flag_suspect =</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a>      longest_string_length <span class="sc">&gt;=</span> thresh_long <span class="sc">|</span></span>
+<span id="cb69-10"><a href="#cb69-10" aria-hidden="true" tabindex="-1"></a>      n_transitions <span class="sc">&lt;=</span> thresh_low_trans</span>
+<span id="cb69-11"><a href="#cb69-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb69-12"><a href="#cb69-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb69-13"><a href="#cb69-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-14"><a href="#cb69-14" aria-hidden="true" tabindex="-1"></a>thresholds <span class="ot">&lt;-</span> all5pt_RP_clean <span class="sc">%&gt;%</span></span>
+<span id="cb69-15"><a href="#cb69-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="dv">1</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb69-16"><a href="#cb69-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(thresh_long, thresh_low_trans)</span>
+<span id="cb69-17"><a href="#cb69-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-18"><a href="#cb69-18" aria-hidden="true" tabindex="-1"></a>thresholds</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Number of missings due to min_valid_responses equal to : 0
+# A data frame:                                            1 × 2
+  thresh_long thresh_low_trans
+        &lt;dbl&gt;            &lt;dbl&gt;
+1          35                0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Attach the flag to all5pt_RS_clean</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>all5pt_RS_clean <span class="ot">&lt;-</span> all5pt_RS_clean <span class="sc">%&gt;%</span></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>    all5pt_RP_clean <span class="sc">%&gt;%</span> <span class="fu">select</span>(id, flag_suspect),</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">"id"</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a><span class="co"># How many respondents are flagged as suspicious?</span></span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>all5pt_RP_clean <span class="sc">%&gt;%</span></span>
+<span id="cb71-10"><a href="#cb71-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb71-11"><a href="#cb71-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_total =</span> <span class="fu">n</span>(),</span>
+<span id="cb71-12"><a href="#cb71-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_suspect =</span> <span class="fu">sum</span>(flag_suspect),</span>
+<span id="cb71-13"><a href="#cb71-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">prop_suspect =</span> <span class="fu">mean</span>(flag_suspect)</span>
+<span id="cb71-14"><a href="#cb71-14" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  n_total n_suspect prop_suspect
+1    3545       254   0.07165021</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot Response patterns</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>all5pt_RP_clean <span class="sc">%&gt;%</span></span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>id, <span class="sc">-</span>thresh_long, <span class="sc">-</span>thresh_low_trans) <span class="sc">%&gt;%</span></span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(n_transitions, longest_string_length),</span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"indicator"</span>,</span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"value"</span></span>
+<span id="cb73-8"><a href="#cb73-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb73-9"><a href="#cb73-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb73-10"><a href="#cb73-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">indicator =</span> <span class="fu">case_when</span>(</span>
+<span id="cb73-11"><a href="#cb73-11" aria-hidden="true" tabindex="-1"></a>      indicator <span class="sc">==</span> <span class="st">"longest_string_length"</span> <span class="sc">~</span> <span class="st">"Longest string"</span>,</span>
+<span id="cb73-12"><a href="#cb73-12" aria-hidden="true" tabindex="-1"></a>      indicator <span class="sc">==</span> <span class="st">"n_transitions"</span> <span class="sc">~</span> <span class="st">"Transitions"</span>,</span>
+<span id="cb73-13"><a href="#cb73-13" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> indicator</span>
+<span id="cb73-14"><a href="#cb73-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb73-15"><a href="#cb73-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb73-16"><a href="#cb73-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(value, <span class="at">fill =</span> <span class="fu">factor</span>(flag_suspect))) <span class="sc">+</span></span>
+<span id="cb73-17"><a href="#cb73-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">position =</span> <span class="st">"identity"</span>) <span class="sc">+</span></span>
+<span id="cb73-18"><a href="#cb73-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(indicator), <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb73-19"><a href="#cb73-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(</span>
+<span id="cb73-20"><a href="#cb73-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"0"</span> <span class="ot">=</span> <span class="st">"steelblue"</span>, <span class="st">"1"</span> <span class="ot">=</span> <span class="st">"firebrick"</span>),  </span>
+<span id="cb73-21"><a href="#cb73-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0"</span> <span class="ot">=</span> <span class="st">"Not suspicious"</span>, <span class="st">"1"</span> <span class="ot">=</span> <span class="st">"Suspicious"</span>), </span>
+<span id="cb73-22"><a href="#cb73-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Status"</span> </span>
+<span id="cb73-23"><a href="#cb73-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb73-24"><a href="#cb73-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Indicator value"</span>, <span class="at">y =</span> <span class="st">"Number of respondents"</span>) <span class="sc">+</span></span>
+<span id="cb73-25"><a href="#cb73-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>(<span class="at">base_size =</span> <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_mini_project_group_usa_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For each indicator, the top 5% or bottom 5% of the distribution were defined as ‘extreme’. A respondent was flagged as potentially suspect if at least one of these two indicators was in the respective extreme tail. This approach emphasizes unusual response patterns rather than specific response styles (e.g., extreme or mid‑point responding) and may therefore be less confounded with substantive attitudes. I flagged potentially careless respondents complemented by low transition counts, capturing monotonous responding.</p>
+<p>Respondents in the extreme 5% tails were marked as suspicious: top 5% longest string length OR bottom 5% transitions. This data-driven approach prioritizes response patterns over style indicators (ERS/MRS), reducing confounding with substantive attitudes.</p>
+<p>Out of 3.562 complete cases, this identified 259 respondents (roughly 7%) as potentially careless.</p>
+</section>
 </section>
 <section id="all-together-all" class="level2">
 <h2 class="anchored" data-anchor-id="all-together-all">All together (ALL)</h2>
@@ -1070,6 +1370,12 @@ Count of outliers (speeding factor &gt; 2): 1681 </code></pre>
 <section id="discuss-all" class="level2">
 <h2 class="anchored" data-anchor-id="discuss-all">Discuss (ALL)</h2>
 <p>Discuss central findings shortly! Make some statements on your final decision in respect to include/exclude rules (cutoffs/thresholds/filter combination), data loss, consequences for planned analyses, and any notable what you like to adress.</p>
+<section id="response-styles-and-patterns" class="level3">
+<h3 class="anchored" data-anchor-id="response-styles-and-patterns">Response Styles and Patterns</h3>
+<p>Response styles and pattern analyses based on a broad set of 5-point Likert items revealed substantial heterogeneity in scale use across respondents. To ensure reliable estimation, analyses were restricted to complete cases, resulting in the exclusion of approximately 23% of the sample; lowering the minimum response threshold did not meaningfully reduce data loss.</p>
+<p>While response style indicators (e.g., agreement, midpoint, and extreme responding) showed considerable variation, potentially suspect cases were primarily identified using response pattern indicators. Specifically, respondents were flagged based on extreme values in longest response strings and low numbers of response transitions, capturing overly consistent or monotonous answering behavior.</p>
+<p>Using this conservative, data-driven approach, approximately 7% of the 3.562 respondents were identified as potentially careless. By focusing on response patterns rather than style indicators, this strategy reduces confounding with substantive attitudes and complements other data quality measures such as attention checks and paradata.</p>
+</section>
 </section>
 <section id="references-all" class="level2">
 <h2 class="anchored" data-anchor-id="references-all">References (ALL)</h2>
@@ -1081,7 +1387,7 @@ Mede, N. G., Cologna, V., Berger, S., Besley, J., Brick, C., Joubert, M., Maibac
 Mede, N. G., Schäfer, M. S., &amp; Füchslin, T. (2020). The SciPop scale for measuring science-related populist attitudes in surveys: Development, test, and validation. <em>International Journal of Public Opinion Research</em>, <em>33</em>(2), 273–293. <a href="https://doi.org/10.1093/ijpor/edaa026">https://doi.org/10.1093/ijpor/edaa026</a>
 </div>
 <div id="ref-wuttke2020" class="csl-entry" role="listitem">
-Wuttke, A., SCHIMPF, C., &amp; Schoen, H. (2020). When the whole is greater than the sum of its parts: On the conceptualization and measurement of populist attitudes and other multidimensional constructs. <em>American Political Science Review</em>, <em>114</em>, 1–19. <a href="https://doi.org/10.1017/S0003055419000807">https://doi.org/10.1017/S0003055419000807</a>
+Wuttke, A., Schimpf, C., &amp; Schoen, H. (2020). When the whole is greater than the sum of its parts: On the conceptualization and measurement of populist attitudes and other multidimensional constructs. <em>American Political Science Review</em>, <em>114</em>, 1–19. <a href="https://doi.org/10.1017/S0003055419000807">https://doi.org/10.1017/S0003055419000807</a>
 </div>
 </div>
 <div class="callout callout-style-default callout-important callout-titled">

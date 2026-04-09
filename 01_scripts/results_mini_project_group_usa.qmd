@@ -58,6 +58,9 @@ library(skimr)          # descriptives
 library(labelled)       # data labels
 library(psych)
 library(stringr)
+library(resquin)
+library(gt)
+library(ggcorrplot)
 
 ####  ------------- Read Data ------------- ####
 
@@ -229,11 +232,15 @@ attentioncheck_clean <- data_raw$ATTCHECK_NUMBER %>%
 
 attentioncheck_table <- case_when(
   
+    # missing
+  is.na(attentioncheck_clean) | attentioncheck_clean %in% c("", "none", "i don t know") | attentioncheck_clean == "99"
+  ~ "Missing",
+  
   # numeric variants
   str_detect(attentioncheck_clean, "\\b213\\b|\\b2l3\\b") 
   ~ "Correct",
   
-  # numeric split with extra spaces / periods / commas
+  # numeric split with extra spaces
   str_detect(attentioncheck_clean, "^2\\s*1\\s*3$") 
   ~ "Correct",
   
@@ -241,11 +248,6 @@ attentioncheck_table <- case_when(
   str_detect(attentioncheck_clean,
              "two.*hund.*thirt|two.*thirt|two.*one.*three|twoh.*thirt|twothirt|twoonethree|doscientos trece") 
   ~ "Correct: written in words",
-  
-  # missing
-  attentioncheck_clean %in% c("", "none", "-99", "i don't know") |
-    !str_detect(attentioncheck_clean, "[0-9]") & 
-    !str_detect(attentioncheck_clean, "two|doscientos") ~ "Missing",
   
   # incorrect
   TRUE ~ "Incorrect"
@@ -456,17 +458,6 @@ To enable coherent analyses of response styles (1.) and patterns (2.), the longe
 
 ### 1. Response Styles
 ```{r}
-
-#load packages, if not installed, install first
-packages <- c("resquin", "gt", "ggcorrplot")
-
-for (pkg in packages) {
-  if (!require(pkg, quietly = TRUE, character.only = TRUE)) {
-    install.packages(pkg, dependencies = TRUE)
-    library(pkg, character.only = TRUE)
-  }
-}
-
 # 1: Response styles
 all5pt <- data_raw %>%
 select(ID_QUALTRICS, starts_with("GOALS_PRIO_"),
