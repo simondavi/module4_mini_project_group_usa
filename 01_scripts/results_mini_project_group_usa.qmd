@@ -253,8 +253,9 @@ attentioncheck_table <- case_when(
   TRUE ~ "Incorrect"
 )
 
-table(attentioncheck_table)
+table <- table(attentioncheck_table)
 prop <- prop.table(table(attentioncheck_table))
+table
 ```
 The number of failures on the second attention check decreases from `r round(attcheck2.fails(data_raw$ATTCHECK_RES), 0)`% to `r round(prop.table(prop)["Incorrect"] * 100, 0)`%.
 
