@@ -722,11 +722,11 @@ rd_sciinfo   <- resp_distributions(sciinfo)
 ### Descriptive Summaries
 
 ```{r}
-cat("=== Trust in Scientists ===\n");  summary(rd_trust_sci)
-cat("=== Climate Gov. Trust ===\n");   summary(rd_clim_gov)
-cat("=== Climate Emotions ===\n");     summary(rd_clim_emo)
-cat("=== Science Populism ===\n");     summary(rd_scipop)
-cat("=== Science Info Sources ===\n"); summary(rd_sciinfo)
+cat(" Trust in Scientists \n");  summary(rd_trust_sci)
+cat(" Climate Gov. Trust \n");   summary(rd_clim_gov)
+cat(" Climate Emotions \n");     summary(rd_clim_emo)
+cat(" Science Populism \n");     summary(rd_scipop)
+cat(" Science Info Sources \n"); summary(rd_sciinfo)
 ```
 
 The `ii_mean` values differ noticeably across batteries. Trust in Scientists and Science Information Sources tend toward the upper end of the scale, while Science Populism responses cluster more around the midpoint. Climate Emotions stands out with higher missingness, reflected in the `na_n` column — respondents more frequently skipped individual items compared to the other batteries.
