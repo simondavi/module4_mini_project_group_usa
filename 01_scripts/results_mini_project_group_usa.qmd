@@ -66,6 +66,9 @@ library(skimr)          # descriptives
 library(labelled)       # data labels
 library(psych)
 library(stringr)
+library(resquin)
+library(gt)
+library(ggcorrplot)
 
 ####  ------------- Read Data ------------- ####
 
@@ -237,11 +240,15 @@ attentioncheck_clean <- data_raw$ATTCHECK_NUMBER %>%
 
 attentioncheck_table <- case_when(
   
+    # missing
+  is.na(attentioncheck_clean) | attentioncheck_clean %in% c("", "none", "i don t know") | attentioncheck_clean == "99"
+  ~ "Missing",
+  
   # numeric variants
   str_detect(attentioncheck_clean, "\\b213\\b|\\b2l3\\b") 
   ~ "Correct",
   
-  # numeric split with extra spaces / periods / commas
+  # numeric split with extra spaces
   str_detect(attentioncheck_clean, "^2\\s*1\\s*3$") 
   ~ "Correct",
   
@@ -250,17 +257,13 @@ attentioncheck_table <- case_when(
              "two.*hund.*thirt|two.*thirt|two.*one.*three|twoh.*thirt|twothirt|twoonethree|doscientos trece") 
   ~ "Correct: written in words",
   
-  # missing
-  attentioncheck_clean %in% c("", "none", "-99", "i don't know") |
-    !str_detect(attentioncheck_clean, "[0-9]") & 
-    !str_detect(attentioncheck_clean, "two|doscientos") ~ "Missing",
-  
   # incorrect
   TRUE ~ "Incorrect"
 )
 
-table(attentioncheck_table)
+table <- table(attentioncheck_table)
 prop <- prop.table(table(attentioncheck_table))
+table
 ```
 The number of failures on the second attention check decreases from `r round(attcheck2.fails(data_raw$ATTCHECK_RES), 0)`% to `r round(prop.table(prop)["Incorrect"] * 100, 0)`%.
 
@@ -434,27 +437,450 @@ I ran the same analysis, "trimming" the 1st and 99th percentile to see if the hi
 I would be reluctant to exclude respondents based on response times only, as 18-27% of responses would be lost this way. My suggestion would be to align respondents flagged for response times with other tests - for example attention checks, response patterns and response styles.
 
 
-## Missing Data (YOUR NAME)
+## Missing Data (Ana)
 
 The third kind of data quality indicators are missing data. How much data is missing, which data missing pattern occurs and are there cases with many missing data? (in respect to your choosen instrument(s) / variable(s)).
 
 ```{r}
+####  ------------- Load Packages ------------- ####
+library(resquin)
+library(visdat)
+library(here) 
+library(dplyr)
+library(tibble)
+library(naniar)
 
+ds_usa <- read.csv(here("00_data/ds_full.csv"), sep = ";") %>%
+  filter(COUNTRY_CODE == "USA")
 
+trust_sci_usa <- ds_usa |>
+  dplyr::select(dplyr::starts_with("TRUST_SCI_"))
+
+clim_gov_usa <- ds_usa |>
+  dplyr::select(dplyr::starts_with("CLIM_GOV_"))
+
+clim_emo_usa <- ds_usa |>
+  dplyr::select(dplyr::starts_with("CLIM_EMO_"))
+
+scipop_usa <- ds_usa |>
+  dplyr::select(dplyr::starts_with("SCIPOP_"))
+
+missing_diag_usa <- ds_usa |>
+  dplyr::select(
+    dplyr::starts_with("TRUST_SCI_"),
+    dplyr::starts_with("CLIM_GOV_"),
+    dplyr::starts_with("CLIM_EMO_"),
+    dplyr::starts_with("SCIPOP_")
+  )
 
 ```
-
-
-
-## Response Distributions (YOUR NAME)
-
-The fourth kind of data quality indicators are response distributions. Which indicators do you deem relevant and which criterion do you use for flagging?
 
 ```{r}
+visdat::vis_miss(missing_diag_usa)
 
+```
+The missingness map indicates that nonresponse is structured rather than randomly dispersed across items. Missing values cluster in recurring horizontal bands and battery-level blocks, suggesting that missingness is driven primarily by section-level omission, routing, or broader respondent-level nonresponse rather than isolated item skipping.
+
+```{r} 
+naniar::gg_miss_var(missing_diag_usa, show_pct = TRUE)
+
+```
+
+The trust-in-scientists battery shows moderate but highly uniform missingness across items, with each item missing in roughly 22% of cases. This suggests that missingness in this battery is not item-specific, but instead reflects a common section-level process affecting all trust items similarly.
+
+```{r}
+naniar::gg_miss_upset(missing_diag_usa)
+VIM::aggr(missing_diag_usa) |> plot(numbers = TRUE, prop = FALSE)
+
+```
+
+Missingness is concentrated in recurring blocks of variables rather than dispersed randomly across items. This suggests structured battery- or section-level missingness rather than simple random item-level nonresponse. 
+
+#Person-level Missingness
+
+```{r}
+n_miss_per_case <- is.na(missing_diag_usa) |>
+  as_tibble() |>
+  rowSums()
+
+missing_cases_usa <- tibble(
+  respondent_id = seq_len(nrow(missing_diag_usa)),
+  n_missing = n_miss_per_case
+)
+
+summary(missing_cases_usa$n_missing)
+
+```
+Respondent-level missingness across the combined batteries was highly uneven. While at least half of respondents had no missing values, the upper quartile was missing 16 or more items, and the maximum was 36 missing items.
+```{r}
+missing_cases_usa |>
+  dplyr::filter(n_missing == ncol(missing_diag_usa)) |>
+  print(n = 100)
+
+naniar::gg_miss_case(missing_diag_usa, show_pct = TRUE)
+
+missing_cases_usa |>
+  dplyr::filter(n_missing > 0) |>
+  dplyr::arrange(dplyr::desc(n_missing)) |>
+  print(n = 100)
+
+missing_cases_usa |>
+  dplyr::summarise(
+    n_with_any_missing = sum(n_missing > 0),
+    pct_with_any_missing = mean(n_missing > 0) * 100
+  )
+
+missing_cases_usa |>
+  dplyr::count(n_missing) |>
+  dplyr::arrange(dplyr::desc(n_missing))
+
+ncol(missing_diag_usa)
+
+```
+
+
+```{r}
+battery_missing_summary <- tibble(
+  battery = c("TRUST_SCI", "CLIM_GOV", "CLIM_EMO", "SCIPOP"),
+  n_items = c(
+    ncol(trust_sci_usa),
+    ncol(clim_gov_usa),
+    ncol(clim_emo_usa),
+    ncol(scipop_usa)
+  ),
+  mean_pct_missing = c(
+    mean(is.na(as.matrix(trust_sci_usa))) * 100,
+    mean(is.na(as.matrix(clim_gov_usa))) * 100,
+    mean(is.na(as.matrix(clim_emo_usa))) * 100,
+    mean(is.na(as.matrix(scipop_usa))) * 100
+  )
+)
+
+battery_missing_summary
+
+```
+
+
+#Item-Level Missingness
+
+```{r}
+item_missing_usa <- missing_diag_usa |>
+  dplyr::summarise(
+    across(everything(), ~ mean(is.na(.x)) * 100)
+  ) |>
+  tidyr::pivot_longer(
+    cols = everything(),
+    names_to = "variable",
+    values_to = "pct_missing"
+  ) |>
+  dplyr::arrange(dplyr::desc(pct_missing))
+
+item_missing_usa
+
+ggplot(item_missing_usa, aes(x = reorder(variable, pct_missing), y = pct_missing)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(
+    x = "Variable",
+    y = "% missing",
+    title = "Item-level missingness in selected USA survey batteries"
+  ) +
+  theme_minimal()
+
+```
+
+The trust-in-scientists battery shows moderate but very even missingness across items, suggesting that nonresponse reflects a common battery-level process rather than selective skipping of particular trust items.
+
+#Domain-level missingness
+
+```{r}
+domain_missing_usa <- ds_usa |>
+  dplyr::transmute(
+    miss_trust_sci = as.integer(dplyr::if_all(dplyr::starts_with("TRUST_SCI_"), is.na)),
+    miss_clim_gov  = as.integer(dplyr::if_all(dplyr::starts_with("CLIM_GOV_"), is.na)),
+    miss_clim_emo  = as.integer(dplyr::if_all(dplyr::starts_with("CLIM_EMO_"), is.na)),
+    miss_scipop    = as.integer(dplyr::if_all(dplyr::starts_with("SCIPOP_"), is.na))
+  )
+
+domain_missing_usa |>
+  dplyr::summarise(dplyr::across(everything(), sum))
+
+cor(domain_missing_usa)
+round(cor(domain_missing_usa), 3)
 
 
 ```
+Battery-level missingness indicators were very strongly correlated, especially between climate-government and climate-emotion items (r = 0.997) and between trust-in-scientists and science-populism items (r = 0.978). This indicates that missingness is driven by structured module-level processes rather than isolated or random nonresponse.
+
+#Complete-case Restriction
+```{r}
+complete_cases_usa <- missing_diag_usa |>
+  tidyr::drop_na()
+
+nrow(missing_diag_usa)
+nrow(complete_cases_usa)
+
+tibble(
+  total_cases = nrow(missing_diag_usa),
+  complete_cases = nrow(complete_cases_usa),
+  cases_dropped = nrow(missing_diag_usa) - nrow(complete_cases_usa),
+  pct_dropped = (nrow(missing_diag_usa) - nrow(complete_cases_usa)) / nrow(missing_diag_usa) * 100
+)
+
+```
+Complete-case analysis would exclude 2,067 of 4,662 respondents (44.3%), showing that listwise deletion is highly costly when these batteries are analysed together, , indicating that complete-case analysis would substantially reduce statistical power and is poorly suited to a dataset in which missingness is structured at the battery level.
+
+#Logistic Regression
+```{r}
+
+# install.packages("logistf")
+library(logistf)
+
+
+miss_model_trust_sci <- glm(
+  miss_trust_sci ~ DEM_AGE + DEM_EDU + Duration + Response_TYPE 
+  + DEM_GENDER,
+  data = dplyr::bind_cols(ds_usa, domain_missing_usa),
+  family = binomial()
+)
+
+summary(miss_model_trust_sci)
+
+model_df <- dplyr::bind_cols(ds_usa, domain_missing_usa) |>
+  dplyr::filter(
+    !is.na(DEM_AGE),
+    !is.na(DEM_EDU),
+    !is.na(Duration),
+    !is.na(Response_TYPE),
+    !is.na(DEM_GENDER)
+  ) |>
+  dplyr::mutate(
+    DEM_EDU       = factor(DEM_EDU),
+    Response_TYPE = factor(Response_TYPE),
+    DEM_GENDER    = factor(DEM_GENDER)
+  )
+
+table(model_df$miss_trust_sci, model_df$Response_TYPE)
+table(model_df$miss_trust_sci, model_df$DEM_GENDER)
+table(model_df$miss_trust_sci, model_df$DEM_EDU)
+
+miss_model_trust_sci <- logistf::logistf(
+  miss_trust_sci ~ DEM_AGE + DEM_EDU + Duration + Response_TYPE + DEM_GENDER,
+  data = model_df
+)
+ 
+summary(miss_model_trust_sci)
+
+tibble::tibble(
+  term      = miss_model_trust_sci$terms,
+  odds_ratio = exp(coef(miss_model_trust_sci)),
+  ci_lower  = exp(miss_model_trust_sci$ci.lower),
+  ci_upper  = exp(miss_model_trust_sci$ci.upper),
+  p_value   = miss_model_trust_sci$prob
+)
+
+```
+A penalised logistic regression model was used to account for sparse categories and separation issues. Results indicate that missingness in the trust-in-scientists battery is systematically structured. Older respondents were significantly less likely to exhibit whole-battery missingness, and gender differences were also observed, with one group showing a lower probability of omission. Completion duration was positively associated with missingness, although the effect size was small. In contrast, education was not a robust predictor once modelled categorically. A survey-administration variable (Response Type) exhibited near-perfect separation and was therefore interpreted as a structural artefact rather than a substantive determinant of missingness.
+
+Taken together, these findings suggest that missingness is neither Missing Completely at Random (MCAR) nor purely item-level. Instead, it reflects a combination of respondent characteristics, survey engagement, and design-driven processes operating at the battery level.
+
+
+## Response Distributions (Erik Paessler)
+
+**The fourth kind of data quality indicators are response distributions. Which indicators do you deem relevant and which criterion do you use for flagging?**
+
+For response distributions, I focus on **intra-individual (within-person) location and spread indicators** computed with `resquin::resp_distributions()`. Five Likert-scale batteries are examined separately so the statistics remain interpretable within each coherent scale: Trust in Scientists (`TRUST_SCI_`), Climate Government Trust (`CLIM_GOV_`), Climate Emotions (`CLIM_EMO_`), Science Populism (`SCIPOP_`, 8 original items), and Science Information Sources (`SCIINFO_`).
+
+The indicators I deem most relevant are:
+
+- **`ii_sd`** (intra-individual standard deviation): captures within-person response spread. A value of zero flags **straightliners**, i.e. respondents who chose the identical option for every item in a battery, a strong marker of inattentive responding.
+- **`mahal`** (Mahalanobis distance): captures how unusual a respondent's response profile is relative to the sample distribution. Respondents in the **bottom 10%** have profiles suspiciously close to the sample centroid (overly uniform, consistent with careless responding), whereas respondents in the **top 10%** show unusually deviant profiles.
+- **`ii_mean` / `ii_median`**: secondary indicators used to characterise the nature of flagged profiles (e.g., persistent floor or ceiling responding combined with near-zero SD).
+
+**Flagging criterion**: A case is flagged as a potential data quality concern if it meets at least one of the following for the focal SCIPOP battery: (1) `ii_sd == 0` (straightlining), or (2) Mahalanobis distance in the bottom or top 10% of the sample. All other batteries serve as comparative context.
+
+```{r}
+# Extract item batteries from data_raw ----
+
+# Trust in Scientists
+trust_sci <- data_raw |> select(starts_with("TRUST_SCI_"))
+
+# Climate Government Trust
+clim_gov  <- data_raw |> select(starts_with("CLIM_GOV_"))
+
+# Climate Emotions
+clim_emo  <- data_raw |> select(starts_with("CLIM_EMO_"))
+
+# Science Populism: original 8 items only (exclude computed indices added earlier)
+scipop <- data_raw |>
+  select(SCIPOP_common, SCIPOP_good, SCIPOP_advantage, SCIPOP_cahoots,
+         SCIPOP_influence, SCIPOP_involved, SCIPOP_lifeexp, SCIPOP_rely)
+
+# Science Information Sources
+sciinfo <- data_raw |> select(starts_with("SCIINFO_"))
+
+
+# Compute response distribution indicators ----
+
+rd_trust_sci <- resp_distributions(trust_sci)
+rd_clim_gov  <- resp_distributions(clim_gov)
+rd_clim_emo  <- resp_distributions(clim_emo)
+rd_scipop    <- resp_distributions(scipop)
+rd_sciinfo   <- resp_distributions(sciinfo)
+```
+
+### Descriptive Summaries
+
+```{r}
+cat(" Trust in Scientists \n");  summary(rd_trust_sci)
+cat(" Climate Gov. Trust \n");   summary(rd_clim_gov)
+cat(" Climate Emotions \n");     summary(rd_clim_emo)
+cat(" Science Populism \n");     summary(rd_scipop)
+cat(" Science Info Sources \n"); summary(rd_sciinfo)
+```
+
+The `ii_mean` values differ noticeably across batteries. Trust in Scientists has the highest average mean (3.81 on a 5-point scale), indicating that US respondents generally lean toward trusting scientists. Science Populism and Science Info Sources both sit near 3.44, but on different scales — for SCIPOP (1–5) this is around the midpoint, while SCIINFO appears to use a wider scale. Climate Emotions has the lowest average mean (2.76), suggesting US respondents more often report lower emotional engagement with climate change. Climate Emotions and Climate Government Trust also stand out for missingness: their 75th percentile for `n_na` reaches the maximum possible value, indicating that when respondents have missing items in these batteries, they tend to be missing all items, which indicates structure behind the skip patterns as opposed to random non-response.
+
+### Univariate Distribution Plots
+
+```{r}
+plot_univariate <- function(rd, title) {
+  rd |>
+    select(-contains("na")) |>
+    pivot_longer(-id) |>
+    ggplot(aes(value)) +
+    geom_histogram(bins = 30, fill = "steelblue", color = "white") +
+    facet_wrap(vars(name), scales = "free_x") +
+    labs(title = title, subtitle = "US respondents", x = NULL, y = "Count") +
+    theme_minimal(base_size = 12)
+}
+
+plot_univariate(rd_trust_sci, "Response Distributions – Trust in Scientists")
+plot_univariate(rd_clim_gov,  "Response Distributions – Climate Gov. Trust")
+plot_univariate(rd_clim_emo,  "Response Distributions – Climate Emotions")
+plot_univariate(rd_scipop,    "Response Distributions – Science Populism")
+plot_univariate(rd_sciinfo,   "Response Distributions – Science Info Sources")
+```
+
+The `ii_sd` histograms show a spike at zero across all batteries, indicating straightlining. This spike is most pronounced for **Trust in Scientists** (~650 cases) and **Science Populism** (~625 cases), and notably smaller for Climate Gov. Trust (~350) and Climate Emotions (~300). This is notable because Trust in Scientists, despite expressing the most positive location on average, also contains the most within-person homogeneity cases. The `ii_mean` distributions confirm the substantive differences across batteries: Trust in Scientists is left-skewed (most respondents lean toward 4–5), whereas SCIPOP is roughly symmetric around 3, and Climate Emotions is more evenly spread across the full range with a slight left lean toward lower values. Mahalanobis distances are right-skewed in all batteries, as expected under a chi-squared distribution, with Trust in Scientists showing the most extreme outliers (up to ~10).
+
+### Indicator Boxplots by Battery
+
+```{r}
+# Boxplots of each indicator per battery
+# (NA-count columns excluded for clarity)
+
+rd_trust_sci |> select(-contains("na")) |> plot(main = "Trust in Scientists – USA")
+rd_clim_gov  |> select(-contains("na")) |> plot(main = "Climate Gov. Trust – USA")
+rd_clim_emo  |> select(-contains("na")) |> plot(main = "Climate Emotions – USA")
+rd_scipop    |> select(-contains("na")) |> plot(main = "Science Populism – USA")
+rd_sciinfo   |> select(-contains("na")) |> plot(main = "Science Info Sources – USA")
+```
+
+The boxplots complement the histograms by highlighting spread and outlier structure per indicator. Key patterns across batteries:
+
+- **`ii_mean`**: Trust in Scientists has the narrowest IQR positioned high on the scale (IQR ≈ 3.2–4.5), confirming concentrated high-trust responding. Science Info Sources has the widest IQR (≈ 2.1–4.7), reflecting more heterogeneous scale use across its items.
+- **`ii_sd`**: Science Info Sources shows the highest median and widest IQR for within-person spread, consistent with its broader scale range. Trust in Scientists and SCIPOP have lower median SD but show many outliers at the upper end, which are respondents who used the full range of the scale.
+- **`ii_median`**: SCIPOP has a relatively narrow IQR (≈ 3–4), while Science Info Sources spans nearly the full scale, reflecting its different item content and scale range.
+- **`mahal`**: All batteries show heavy right tails with numerous outliers well beyond the whiskers, confirming that a small subset of respondents have somewhat unusual response profiles in each battery. Trust in Scientists produces the most extreme Mahalanobis outliers (up to ~10.2).
+
+### Straightlining: All Batteries
+
+```{r}
+# Count respondents with ii_sd == 0 (identical response to every item) in each battery
+
+straight_summary <- tibble(
+  Battery    = c("Trust in Scientists", "Climate Gov. Trust", "Climate Emotions",
+                 "Science Populism",    "Science Info Sources"),
+  n_total    = c(nrow(rd_trust_sci), nrow(rd_clim_gov), nrow(rd_clim_emo),
+                 nrow(rd_scipop),    nrow(rd_sciinfo)),
+  n_straight = c(
+    sum(rd_trust_sci$ii_sd == 0, na.rm = TRUE),
+    sum(rd_clim_gov$ii_sd  == 0, na.rm = TRUE),
+    sum(rd_clim_emo$ii_sd  == 0, na.rm = TRUE),
+    sum(rd_scipop$ii_sd    == 0, na.rm = TRUE),
+    sum(rd_sciinfo$ii_sd   == 0, na.rm = TRUE)
+  )
+) |>
+  mutate(pct_straight = round(n_straight / n_total * 100, 1))
+
+print(straight_summary)
+```
+
+Straightlining rates are highest for **Trust in Scientists** (15.8%) and **Science Populism** (14.2%), and substantially lower for Climate Gov. Trust (8.0%), Science Info Sources (8.8%), and Climate Emotions (7.1%). The high rate for SCIPOP is of primary concern given its role as the focal construct: roughly 1 in 7 US respondents gave an identical answer to all eight populism items. For Trust in Scientists, the high rate likely reflects the battery's strong positive consensus. Selecting the same high-trust option throughout may reflect overall homogeneity for some respondents rather than inattentiveness, though the two are not distinguishable from response data alone. The lower rates in Climate Emotions may partly reflect that the items tap distinct emotions (e.g., fear, hope, anger), making pure straightlining harder even for inattentive respondents.
+
+### Mahalanobis Distance: All Batteries
+
+```{r}
+# Helper function: summarise bottom 10% and top 10% Mahalanobis for a given rd object
+mahal_summary <- function(rd, label) {
+  p10 <- quantile(rd$mahal, 0.10, na.rm = TRUE)
+  p90 <- quantile(rd$mahal, 0.90, na.rm = TRUE)
+  cat(sprintf("\n %s \n", label))
+  cat(sprintf("  10th pct cutoff: %.3f   |   90th pct cutoff: %.3f\n", p10, p90))
+  cat("  Bottom 10% (most uniform profiles):\n")
+  print(summary(rd |> filter(mahal <= p10)))
+  cat("  Top 10% (most deviant profiles):\n")
+  print(summary(rd |> filter(mahal >= p90)))
+}
+
+mahal_summary(rd_trust_sci, "Trust in Scientists")
+mahal_summary(rd_clim_gov,  "Climate Gov. Trust")
+mahal_summary(rd_clim_emo,  "Climate Emotions")
+mahal_summary(rd_scipop,    "Science Populism")
+mahal_summary(rd_sciinfo,   "Science Info Sources")
+```
+
+Across all batteries, the bottom-10% Mahalanobis groups share a consistent signature: near-zero `ii_sd` (often at exactly 0) combined with a modal response location — for Trust in Scientists, the uniform response is near 4–5 (high trust); for SCIPOP, it clusters near 3 (midpoint). This indicates that these are straightlining profiles anchored at the most common category, rather than respondents close to the mean in a multidimensional sense. The SCIPOP bottom 10% is of most interest here: median `ii_sd` = 0 and mean `ii_mean` ≈ 3.25 on a 1–5 scale, a pattern consistent with respondents repeatedly selecting the neutral midpoint without engaging with item differences.
+
+The top-10% groups show higher `ii_sd` and more extreme `ii_mean` values across all batteries. For Trust in Scientists, the top-10% `ii_mean` averages 3.26 with SD of 1.27, which is considerably more variable than the full sample average. These may represent respondents with  nuanced or differentiated views, but given the extreme distances, some may also reflect inattentive responding with random category switches.
+
+### Sensitivity Check: `min_valid_responses` Threshold
+
+```{r}
+# CLIM_EMO is used here because it has the highest average number of missing items,
+# making it the natural test case for the min_valid_responses threshold.
+
+cat(" CLIM_EMO: default (min_valid = 1.0) \n")
+clim_emo |> resp_distributions(min_valid_responses = 1.0) |> summary()
+
+cat(" CLIM_EMO: min_valid = 0.9 \n")
+clim_emo |> resp_distributions(min_valid_responses = 0.9) |> summary()
+
+cat(" CLIM_EMO: min_valid = 0.5 \n")
+clim_emo |> resp_distributions(min_valid_responses = 0.5) |> summary()
+```
+
+The sensitivity analysis shows virtually no change in the summary statistics across all three threshold settings. This is consistent with the pattern already observed in the descriptives: when respondents have missing items in the CLIM_EMO battery, the 75th percentile of `n_na` is at the maximum (9 items), indicating that missings occur in an all-or-nothing fashion. Lowering the threshold therefore does not bring in any partially-completed respondents, because no such partial completions exist in practice. The default strict threshold (1.0) is retained, and `ii_sd` and `mahal` remain reliable for the cases that are included.
+
+### Flagging: SCIPOP Battery
+
+```{r}
+# Focal flagging on Science Populism — the primary construct of this assignment.
+# A case is flagged if: ii_sd == 0 (straightlining) OR mahal in bottom/top 10%.
+
+p10_scipop <- quantile(rd_scipop$mahal, 0.10, na.rm = TRUE)
+p90_scipop <- quantile(rd_scipop$mahal, 0.90, na.rm = TRUE)
+
+rd_scipop_flagged <- rd_scipop |>
+  mutate(
+    flag_straightline = ii_sd == 0,
+    flag_mahal        = (!is.na(mahal)) & (mahal <= p10_scipop | mahal >= p90_scipop),
+    flag_rd           = as.integer(flag_straightline | flag_mahal)
+  )
+
+rd_scipop_flagged |>
+  summarise(
+    n_total         = n(),
+    n_straightline  = sum(flag_straightline, na.rm = TRUE),
+    n_mahal_extreme = sum(flag_mahal,        na.rm = TRUE),
+    n_flagged       = sum(flag_rd,           na.rm = TRUE),
+    prop_flagged    = mean(flag_rd,          na.rm = TRUE)
+  )
+```
+
+The two criteria overlap substantially: most straightliners (ii_sd = 0) also fall in the bottom-10% Mahalanobis group, since a flat uniform profile is a special case of a profile close to the modal centroid. Combining the two flags therefore does not double the flagged count. The joint criterion identifies a share of US respondents whose SCIPOP response profiles give reason for concern. These cases are candidates for exclusion or sensitivity testing in subsequent analyses, where they can be cross-referenced with flags from other quality indicators (attention checks, paradata) to identify respondents who triggered multiple warning signs.
 
 
 
@@ -466,17 +892,6 @@ To enable coherent analyses of response styles (1.) and patterns (2.), the longe
 
 ### 1. Response Styles
 ```{r}
-
-#load packages, if not installed, install first
-packages <- c("resquin", "gt", "ggcorrplot")
-
-for (pkg in packages) {
-  if (!require(pkg, quietly = TRUE, character.only = TRUE)) {
-    install.packages(pkg, dependencies = TRUE)
-    library(pkg, character.only = TRUE)
-  }
-}
-
 # 1: Response styles
 all5pt <- data_raw %>%
 select(ID_QUALTRICS, starts_with("GOALS_PRIO_"),
