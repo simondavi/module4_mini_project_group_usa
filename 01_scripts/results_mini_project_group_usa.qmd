@@ -796,11 +796,10 @@ Straightlining rates vary across batteries. Climate Government Trust and Science
 ### Mahalanobis Distance: All Batteries
 
 ```{r}
-# Helper function
 mahal_summary <- function(rd, label) {
   p10 <- quantile(rd$mahal, 0.10, na.rm = TRUE)
   p90 <- quantile(rd$mahal, 0.90, na.rm = TRUE)
-  cat(sprintf("\n--- %s ---\n", label))
+  cat(sprintf("\n %s \n", label))
   cat(sprintf("  10th pct cutoff: %.3f   |   90th pct cutoff: %.3f\n", p10, p90))
   cat("  Bottom 10% (uniform profiles):\n")
   print(summary(rd |> filter(mahal <= p10)))
