@@ -30,13 +30,9 @@ bibliography: references.bib
 
 ## Introduction (ALL)
 
-Other suggested intro:
 This assignment explores data quality aspects of United States of America (USA) data set of the Trust in Science and Science-related Populism (TISP) project. The TISP project consists of a consortium of 241 researchers from 179 institutions focused on global public opinion regarding science. Data was collected from 68 countries from November 2022 to August 2023, with the survey gathering the opinions of 71,922 respondents in total (TISP, n.d).
 
-The project measures various constructs and characteristics. We focus on the questionnaire items related to science-related populism for this assignment. This construct is understood as considering conflicting ideas regarding decision-making powers pertaining to science and what is considered “true knowledge” [@mede2020]. 
-
-As our interest here is in the data quality aspects of the dataset, we consider the findings of various data quality tests - including attention checks, para data, missing data, response distribution and response styles – to discern the overall quality of the USA dataset and to highlight any respondents that should be flagged due to their response behaviours. 
-
+The project measures various constructs and characteristics. We focus on the questionnaire items related to science-related populism for this assignment.
 
 *Science-related populism* has been conceptualized as a set of ideas suggesting a fundamental conflict between an allegedly virtuous people and an allegedly immoral academic elite over who should be in charge of science-related decision-making and over what is deemed true knowledge [@mede2020].
 
@@ -47,9 +43,9 @@ Conceptually, science-related populism consists of four major components:
 + science-related decision-making sovereignty, and 
 + truth-speaking sovereignty.
 
-This is the  final assignment task of KODAQS Academy, Course D2 Survey of "Team USA" <br>
+This is the  final assignment task of KODAQS Academy, Course D2 Survey of "Team USA".
 
-It contains sections for several kinds of data quality indicators  in regards to the construct above. 
+As our interest here is in the data quality aspects of the dataset, we consider the findings of various data quality tests - including attention checks, para data, missing data, response distribution and response styles – to discern the overall quality of the USA dataset and to highlight any respondents that should be flagged due to their response behaviours. 
 
 Some parts of the assignment were intended to be completed collaboratively and others individually, each teammate was responsible for at least one section of the indicator. Overall, we worked together constructively and collaboratively on this script. Consequently, the listed names do not fully capture the collaborative nature of the work, as all team members contributed across multiple sections.
 
@@ -60,15 +56,18 @@ In a first step you have to define your R setup (e.g., install und load relevant
 ### Load Packages and Read Data
 ```{r}
 ####  ------------- Load Packages ------------- ####
-library(here)           # find files
-library(tidyverse)      # data management
-library(skimr)          # descriptives
-library(labelled)       # data labels
+library(here)           
+library(tidyverse)     
+library(skimr)          
+library(labelled)       
 library(psych)
 library(stringr)
 library(resquin)
 library(gt)
 library(ggcorrplot)
+library(visdat)
+library(tibble)
+library(naniar)
 
 ####  ------------- Read Data ------------- ####
 
@@ -78,7 +77,7 @@ data_raw <- read.csv(here("00_data/ds_full.csv"), sep = ";") %>%
   mutate(across(where(is.numeric), ~ na_if(., 99))) %>%
   mutate(across(where(is.character), ~ na_if(., "99")))
 
-# raw data needs to be processed (a liitle bit)
+# raw data needs to be processed
 # Source: https://osf.io/5c3qd/files/xz8bw
 
 # (1.) Identify and exclude duplicate completes
@@ -131,10 +130,6 @@ per_rem2 <- ((nrow(data_raw) - nrow(data_raw_tmp)) / nrow(data_raw)) * 100
 
 data_raw <- data_raw_tmp
 rm(data_raw_tmp)
-
-# data
-data <- read.csv(here("00_data/ds_final.csv"), sep = ";") %>%
-  filter(COUNTRY_CODE == "USA")
 ```
 
 The following packages are used in this script:
@@ -143,17 +138,17 @@ The following packages are used in this script:
 installed.packages()[names(sessionInfo()$otherPkgs), "Version"]
 ```
 
-Two datasets are read:
+One dataset is read:
 
-- `data_raw`: The raw dataset before any cleaning or transformations.
-- `data`: The analysis-ready dataset, including post-stratification.
+- `ds_full.csv`: The raw dataset before any cleaning or transformations.
 
-Not all calculations can be performed using the pre-processed data, as some information is already missing. Therefore, the raw data were processed as follows:
+The raw data was processed as follows:
 
-1. Duplicate respondents were excluded: `r round(per_rem1, 2)`%
-2. Age values outside the range of 18 to 100 were set to NA: `r round(per_out, 2)`%
-3. Gender was recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
-4. Only participants were included who reached the beginning of the actual questionnaire (= question 1: DEM_GENDER): `r round(per_rem2, 2)`%
+1. The data was filtered using `COUNTRY_CODE == "USA"`
+2. Duplicate respondents were excluded: `r round(per_rem1, 2)`%
+3. Age values outside the range of 18 to 100 were set to NA: `r round(per_out, 2)`%
+4. Gender was recoded into a binary variable (1 = male), with self-described responses excluded from this coding.
+5. Only participants were included who reached the beginning of the actual questionnaire (= question 1: DEM_GENDER): `r round(per_rem2, 2)`%
 
 We performed all calculations on this dataset `data_raw`.
 
@@ -271,7 +266,7 @@ These are candidates of careless respondents and therefore "flagged" in this sec
 
 ## Para Data (Elnari Potgieter)
 
-This section looks at the response time indices of the USA data set, considering total response time, average time per item, relative completion time and speeding factor.
+The second kind of data quality indicators are para data. What kind of para data can you find in the data? Show with an example how this type of variable can be used for DQA!
 
 1. Total Response Time
 
@@ -388,7 +383,6 @@ cat("Proportion of respondents faster than two times the median:", proportion_fa
 ```
 883 (20,24%) respondents where twice as fast as the median of the relative completion time. I am reluctant to exclude this many respondents based on this criteria, so I proceed with also considering the speeding factor as per the course example.
 
-
 4. Speeding Factor
 
 [@leiner2019] suggests a factor of larger than two as outliers.This is calculated using their response time in relation to the median of the sample. 
@@ -443,13 +437,6 @@ The third kind of data quality indicators are missing data. How much data is mis
 
 ```{r}
 ####  ------------- Load Packages ------------- ####
-library(resquin)
-library(visdat)
-library(here) 
-library(dplyr)
-library(tibble)
-library(naniar)
-
 ds_usa <- read.csv(here("00_data/ds_full.csv"), sep = ";") %>%
   filter(COUNTRY_CODE == "USA")
 
@@ -688,7 +675,7 @@ Taken together, these findings suggest that missingness is neither Missing Compl
 
 ## Response Distributions (Erik Paessler)
 
-**The fourth kind of data quality indicators are response distributions. Which indicators do you deem relevant and which criterion do you use for flagging?**
+The fourth kind of data quality indicators are response distributions. Which indicators do you deem relevant and which criterion do you use for flagging?
 
 For response distributions, I focus on **intra-individual (within-person) location and spread indicators** computed with `resquin::resp_distributions()`. Five Likert-scale batteries are examined separately so the statistics remain interpretable within each coherent scale: Trust in Scientists (`TRUST_SCI_`), Climate Government Trust (`CLIM_GOV_`), Climate Emotions (`CLIM_EMO_`), Science Populism (`SCIPOP_`, 8 original items), and Science Information Sources (`SCIINFO_`).
 
@@ -1118,9 +1105,6 @@ Now that you have different flags you may want to combine them. Which combinatio
 
 Discuss central findings shortly! Make some statements on your final decision in respect to include/exclude rules (cutoffs/thresholds/filter combination), data loss, consequences for planned analyses, and any notable what you like to adress.
 
-
-
-
 ### Response Styles and Patterns
 Response styles and pattern analyses based on a broad set of 5-point Likert items revealed substantial heterogeneity in scale use across respondents. To ensure reliable estimation, analyses were restricted to complete cases, resulting in the exclusion of approximately 23% of the sample; lowering the minimum response threshold did not meaningfully reduce data loss.
 
@@ -1133,17 +1117,3 @@ Using this conservative, data-driven approach, approximately 7% of the 3.562 res
 
 ::: {#refs}
 :::
-
-::: {.callout-important appearance="default"}
-
-## Pay Attention Please!
-For final submission upload your prepared Quarto document and an exported html-file 
-into Moodle, week 8, section "Final Assignment Course D2 Survey LU8.1".
-**FINAL DEADLINE will be June 20th, 2025, sharp!**
-
-:::
-
-<span style="color:#1E8CC8;">**Good luck and see you next Thursday (June 5th) on our last weekly touchpoint!**</span>👋
-
-
-
