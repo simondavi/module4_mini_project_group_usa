@@ -30,6 +30,14 @@ bibliography: references.bib
 
 ## Introduction (ALL)
 
+Other suggested intro:
+This assignment explores data quality aspects of United States of America (USA) data set of the Trust in Science and Science-related Populism (TISP) project. The TISP project consists of a consortium of 241 researchers from 179 institutions focused on global public opinion regarding science. Data was collected from 68 countries from November 2022 to August 2023, with the survey gathering the opinions of 71,922 respondents in total (TISP, n.d).
+
+The project measures various constructs and characteristics. We focus on the questionnaire items related to science-related populism for this assignment. This construct is understood as considering conflicting ideas regarding decision-making powers pertaining to science and what is considered “true knowledge” [@mede2020]. 
+
+As our interest here is in the data quality aspects of the dataset, we consider the findings of various data quality tests - including attention checks, para data, missing data, response distribution and response styles – to discern the overall quality of the USA dataset and to highlight any respondents that should be flagged due to their response behaviours. 
+
+
 *Science-related populism* has been conceptualized as a set of ideas suggesting a fundamental conflict between an allegedly virtuous people and an allegedly immoral academic elite over who should be in charge of science-related decision-making and over what is deemed true knowledge [@mede2020].
 
 Conceptually, science-related populism consists of four major components: 
@@ -260,7 +268,7 @@ These are candidates of carless respondents and therefore "flagged" in this sect
 
 ## Para Data (Elnari Potgieter)
 
-This section looks at the response time indices of the USA data set, considering total response time, average time per item, relative completion time and speeding factor. This is a draft version.
+This section looks at the response time indices of the USA data set, considering total response time, average time per item, relative completion time and speeding factor.
 
 1. Total Response Time
 
@@ -268,28 +276,33 @@ Total response time refers to the time it takes a respondent to complete the sur
 
 ```{r}
 # Key Descriptives of Duration variable (in seconds)
-describe (data_raw$Duration)
+describe (data_raw$Duration, na.rm = TRUE)
 ```
-Mean (1174.57) larger than median (905), showing right / positive skew in data. Further analysis to look out for high value outliers. Minimum at 133 seconds (2.22 minutes), and maximum at 26943 seconds (about 7 and a half hours).
+Mean (1090.11) larger than median (620), showing right / positive skew in data. Minimum at 10 seconds, and maximum at 213592 seconds. Further analysis to look out for very high value outliers.
 
-The results do not appear to show any missing / incorrectly coded data, so no need for further data cleaning. Further consideration to percentiles / quartiles.
+Further consideration to percentiles / quartiles.
 
 ```{r}
 # Consider quartiles
 skim(data_raw$Duration)
+# Shows missing value, so proceed and exclude missing values
+# Exclude NA values and skim the Duration variable
+skim(data_raw$Duration[!is.na(data_raw$Duration)])
 ```
-Minimum (133) lower p25 (591), maximum (26953) much higher than mean (1174.57) and p75 (1341.25). The extreme high outliers may be due to opening the survey and only answering the survey later. This does not necessarily mean they were not paying attention when they were answering, so I don't think their answers are necessarily invalid. However, on the lower end, 2.22 minutes for a survey with 111 items (Mede et al., 2025) - some of which open ended - sounds very short. 
+Maximum/p100 (213592) much higher than mean/p50 (620) and p75 (1101). The extreme high outliers may be due to respondents opening the survey and only answering the survey later. This does not necessarily mean they were not paying attention when they were answering, so I don't think their answers are necessarily invalid. However, on the lower end, 10 seconds for a survey with 111 items (Mede et al., 2025) - some of which open ended - sounds very short. So too 283 for p25. The extreme outliers also impact further calculations.
 
 Box plots (in seconds) for further investigation.
 
 ```{r}
-# Boxplot using base R
-boxplot(data_raw$Duration,
+# Boxplot excluding NA values
+boxplot(data_raw$Duration[!is.na(data_raw$Duration)],
         main = "Boxplot of Durations",
         ylab = "Duration (seconds)",
         col = "lightblue",
         border = "darkblue")
 ```
+Boxplot reflects very high value outliers, which is less of concern in terms of response quality than the very low value durations as the former may still have paid attention, but they do impact the mean and median, which impacts further analysis. I considered running further analysis without the 1st and99th percentile respondents, but after consulting the course example and Appendix B of [-@leiner2019], it appears that extreme outliers are not necessarily removed at this point. 
+
 2. Average Time per Item
 
 The average time per item indicator captures the average (mean) time spent on survey questions.
@@ -298,19 +311,19 @@ The average time per item indicator captures the average (mean) time spent on su
 # Number of items
 num_items <- 111
 
-# Calculate the average time per item for each respondent
-average_time_per_item <- data_raw$Duration / num_items
+# Calculate the average time per item, excluding NA values in Duration
+average_time_per_item <- data_raw$Duration/ num_items
 
-# Compute the mean of all average times per item
-mean_average_time_per_item <- mean(average_time_per_item)
+# Compute the mean of all average times per item, excluding NA values
+mean_average_time_per_item <- mean(average_time_per_item, na.rm = TRUE)
 
 # Output the results
 cat("Average time per item for each respondent (in seconds):\n")
 cat("\nMean of all average times per item (in seconds):", mean_average_time_per_item, "seconds\n")
 ```
-The average time per item is 10.58 seconds. However, the extreme high outliers may impact this result. 
+Using the filtered durations, the average time per item is 9.82 seconds.
 
-We proceed by looking at the number and proportion of respondents with an average time per item below 2 seconds (as per the course example) - this cut off can be changed for the final version. 
+I do think it prudent to consider the low value outliers more. I proceed by looking at the number and proportion of respondents with an average time per item below 2 seconds (as per the course example).
 
 ```{r}
 # Identify respondents who fall below the cutoff of 2 seconds (as per example in course)
@@ -324,17 +337,10 @@ count_below_cutoff <- length(below_cutoff)
 proportion_below_cutoff <- count_below_cutoff / length(data_raw$Duration)
 
 cat("\nRespondents below the cutoff of", cutoff, "seconds:\n")
-print(below_cutoff)
-
 cat("\nCount of respondents below the cutoff:", count_below_cutoff, "\n")
 cat("Proportion of respondents below the cutoff:", proportion_below_cutoff, "\n")
 ```
-Only 12 respondents (0.005%) had an average time per item below 2 seconds. 
-
-
-Further steps: 
-Decide whether to run the average time analysis without high-end outliers, and then identify those with significantly slower average times per item. 
-Decide whether the cut off should be MRT - 4.4 seconds - per item (Andreadis, 2021)
+845 respondents (18,37%) had an average time per item below 2 seconds. I am reluctant to exclude respondents only based on this criteria and will proceed with further analysis.
 
 3. Relative Time Completion
 
@@ -342,20 +348,26 @@ Relative time completion compares the speed of completing the questionnaire for 
 
 ```{r}
 # Median completion time of the sample
-median_time <- 905
+median_time <- 620
+# As per descriptives
 
-# Calculate the relative completion time for each respondent
-relative_completion_time <- data_raw$Duration/ median_time
+# Calculate the relative completion time for each respondent, excluding NA values
+relative_completion_time <- data_raw$Duration / median_time
 
-# Output the results
-cat("Relative completion time for each respondent:\n")
+# Exclude NA values from the relative completion time
+relative_completion_time <- relative_completion_time[!is.na(relative_completion_time)]
+
+# Output the relative completion times
+cat("Relative completion time for each respondent (excluding NA):\n")
 
 # Summary statistics for relative completion times
 cat("\nSummary of relative completion times:\n")
 print(summary(relative_completion_time))
 ```
-As per the course example, we calculate how many respondents are faster than twice the median completion time. 
-Please note my findings here need to be revised. I need to check if that is median response time or median of the relative completion time. 
+On the lower end, there are respondents much faster than the median. This aligns with earlier flagged concerns regarding some respondents' fast completion rates. 
+
+As per the course example, we calculate how many respondents are faster than twice the median completion time.
+
 ```{r}
 # Identify respondents who are faster than two times the median completion time
 cutoff <- 2
@@ -367,34 +379,35 @@ count_faster <- length(faster_than_cutoff)
 # Proportion of respondents faster than two times the median completion time
 proportion_faster <- count_faster / length(data_raw$Duration)
 
-# Identify rows where respondents are twice as fast as the median response time
-twice_faster_rows <- which(relative_completion_time < 2)
-
 # Output the results
-cat("\nRespondents faster than two times the median completion time:\n")
 cat("\nCount of respondents faster than two times the median:", count_faster, "\n")
 cat("Proportion of respondents faster than two times the median:", proportion_faster, "\n")
-cat("\nRows where respondents are twice as fast as the median response time:\n")
 ```
-317 (13%) respondents where twice as fast as the median of the relative completion time. I did not print the rows for now, as they are quite many. 
+883 (20,24%) respondents where twice as fast as the median of the relative completion time. I am reluctant to exclude this many respondents based on this criteria, so I proceed with also considering the speeding factor as per the course example.
+
 
 4. Speeding Factor
 
-Leiner, 2019 suggests a factor of larger than two as outliers.This is calculated using their response time in relation to the median of the sample. 
+[@leiner2019] suggests a factor of larger than two as outliers.This is calculated using their response time in relation to the median of the sample. 
 
 ```{r}
-# Speeding factor
+# Median completion time of the sample
+median_time <- 620
+
 # Calculate the speeding factor for each respondent
 speeding_factor <- median_time / data_raw$Duration
 
-# Output the results
-cat("Speeding factor for each respondent:\n")
+# Exclude NA values from the speeding factor
+speeding_factor <- speeding_factor[!is.na(speeding_factor)]
 
-# Summary statistics for speeding factors
-cat("\nSummary of speeding factors:\n")
+# Output the speeding factors
+cat("Speeding factor for each respondent (excluding NA):\n")
+
+# Summary statistics for speeding factors (excluding NA values)
+cat("\nSummary of speeding factors (excluding NA):\n")
 print(summary(speeding_factor))
 ```
-Some outliers with a speeding factor above 2, when considering maximum (6.8).
+From the above summary of speeding factors, the data set does include respondents with a speeding factor above 2.
 
 ```{r}
 # Identify outliers (speeding factor > 2)
@@ -404,25 +417,22 @@ outliers <- which(speeding_factor > 2)
 outlier_count <- length(outliers)
 
 # Proportion of outliers
-outlier_proportion <- outlier_count / length(data$Duration)
+outlier_proportion <- outlier_count / length(data_raw$Duration)
 
 # Output the count and proportion of outliers
 cat("\nCount of outliers (speeding factor > 2):", outlier_count, "\n")
 cat("Proportion of outliers:", outlier_proportion, "\n")
 ```
-348 (14%) respondents with speeding factor above 2. I did not print the rows for now, as there are quite many.
+The dataset has 1197 (27,44%) - more than a quarter of - respondents with speeding factor above 2.
 
 5. Summary
 
-Suggestion to compare the rows highlighted throgugh this analysis with the rows identified in other analysed (for example attention checks) to identify respondents which may need to be flagged. 
+With 845 respondents (18,37%) with an average time per item below 2 seconds, 883 (20,24%) respondents twice as fast as the median of the relative completion time and 1197 (27,44%) respondents with speeding factor above 2, it does appear like many respondents were answering the questionnaire quite speedily. 
 
-6. References
+I ran the same analysis, "trimming" the 1st and 99th percentile to see if the higher value outliers affect the results in a meaningful way, but this was not the case as the mean remains very similar. 
 
-Knopf T., & Roth M. (2025). Tools and Workflows for Survey Data – Paradata [Slide deck]. In F. Bemmann, J. Blumenberg, J. Daikeler, F. Draxler, M. Fritz, F. Keusch, F. Krämer, S. Jünger, S. Kapidzic, T. Knopf, F. Kreuter, V. Kunz, L. Mejia Lopez, Y. Peters, B. Rammstedt, P. Siegers, J. Sun, C. Wagner, K. Weller, C. E. Yildiz, & L. Young (Eds.), KODAQS Academy.
+I would be reluctant to exclude respondents based on response times only, as 18-27% of responses would be lost this way. My suggestion would be to align respondents flagged for response times with other tests - for example attention checks, response patterns and response styles.
 
-Leiner, Dominik J.. “Too Fast, too Straight, too Weird: Non-Reactive Indicators for Meaningless Data in Internet Surveys.” Survey research methods 13 (2019): 229-248.
-
-Mede, N.G., Cologna, V., Berger, S. et al. Perceptions of science, science communication, and climate change attitudes in 68 countries – the TISP dataset. Sci Data 12, 114 (2025). https://doi.org/10.1038/s41597-024-04100-7
 
 ## Missing Data (YOUR NAME)
 
