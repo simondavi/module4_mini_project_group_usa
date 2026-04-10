@@ -201,7 +201,7 @@ data_des
 ```
 
 
-## Attention Checks (David)
+## Attention Checks (David Simon)
 
 The first kind of data quality indicators are check items. What check items are provided in the dataset and did participants pass the check?
 
@@ -267,7 +267,7 @@ table
 ```
 The number of failures on the second attention check decreases from `r round(attcheck2.fails(data_raw$ATTCHECK_RES), 0)`% to `r round(prop.table(prop)["Incorrect"] * 100, 0)`%.
 
-These are candidates of carless respondents and therefore "flagged" in this section.
+These are candidates of careless respondents and therefore "flagged" in this section.
 
 ## Para Data (Elnari Potgieter)
 
