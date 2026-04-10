@@ -256,6 +256,16 @@ attentioncheck_table <- case_when(
   TRUE ~ "Incorrect"
 )
 
+# add flag to dataset
+data_raw <- data_raw %>%
+  mutate(
+    attentioncheck_flag = case_when(
+      attentioncheck_table == "Incorrect" ~ TRUE,
+      attentioncheck_table == "Missing" ~ NA,
+      TRUE ~ FALSE
+    )
+  )
+
 table <- table(attentioncheck_table)
 prop <- prop.table(table(attentioncheck_table))
 table
@@ -421,6 +431,22 @@ cat("\nCount of outliers (speeding factor > 2):", outlier_count, "\n")
 cat("Proportion of outliers:", outlier_proportion, "\n")
 ```
 The dataset has 1197 (27,44%) - more than a quarter of - respondents with speeding factor above 2.
+
+```{r}
+# Add a flag for speeding_factor using case_when
+data_raw <- data_raw %>%
+  mutate(
+    speeding_factor = median(median_time, na.rm = TRUE) / data_raw$Duration,
+    paradata_flag = case_when(
+      is.na(speeding_factor) ~ NA,
+      speeding_factor > 2 ~ TRUE,
+      TRUE ~ FALSE
+    )
+  )
+
+# Set TRUE if speeding_factor > 2
+# Set FALSE otherwise
+```
 
 5. Summary
 
@@ -1090,28 +1116,41 @@ This data-driven approach prioritizes response patterns over style indicators (E
 
 Out of 3.562 complete cases, this identified 259 respondents (roughly 7%) as potentially careless.
 
-
 ## All together (ALL)
 
 Now that you have different flags you may want to combine them. Which combinations do you deem suitable? And how to (partly) filter the identified cases?
 
+For each case, the total number of triggered quality flags was calculated. Respondents were marked for exclusion when at least *two* indicators suggested problematic response behavior.
+
 ```{r}
+final_flags <- data_raw %>%
+  mutate(
+    # include all existing quality indicators
+    flag_attention = attentioncheck_flag,
+    flag_paradata = paradata_flag,
+  ) %>%
+  mutate(
+    # count number of triggered flags per respondent
+    n_flags = rowSums(across(starts_with("flag_")), na.rm = TRUE),
 
+    # final exclusion rule
+    final_exclude = n_flags >= 2
+  )
 
-
+final_flags %>%
+  summarise(
+    "N" = n(),
+    "excluded (n)" = sum(final_exclude, na.rm = TRUE),
+    "excluded [%]" = mean(final_exclude, na.rm = TRUE) * 100,
+    "Flags (M)" = mean(n_flags, na.rm = TRUE)
+  )
 ```
 
 ## Discuss (ALL)
 
-Discuss central findings shortly! Make some statements on your final decision in respect to include/exclude rules (cutoffs/thresholds/filter combination), data loss, consequences for planned analyses, and any notable what you like to adress.
+The combined exclusion rule suggests that only respondents who triggerd at least two flags are removed from the analytical sample. This decision rule prioritizes specificity over sensitivity, thereby minimizing the risk of over-excluding valid but unusual respondents, for example since speeding alone may reflect familiarity with the questionnaire rather than careless responding, combining it with another indicator, e.g. attention-check, failure provides a stronger indication of insufficient data quality.
 
-### Response Styles and Patterns
-Response styles and pattern analyses based on a broad set of 5-point Likert items revealed substantial heterogeneity in scale use across respondents. To ensure reliable estimation, analyses were restricted to complete cases, resulting in the exclusion of approximately 23% of the sample; lowering the minimum response threshold did not meaningfully reduce data loss.
-
-While response style indicators (e.g., agreement, midpoint, and extreme responding) showed considerable variation, potentially suspect cases were primarily identified using response pattern indicators. Specifically, respondents were flagged based on extreme values in longest response strings and low numbers of response transitions, capturing overly consistent or monotonous answering behavior.
-
-Using this conservative, data-driven approach, approximately 7% of the 3.562 respondents were identified as potentially careless. By focusing on response patterns rather than style indicators, this strategy reduces confounding with substantive attitudes and complements other data quality measures such as attention checks and paradata.
-
+As a robustness check, future analyses could compare substantive results with and without flagged cases to evaluate whether the exclusion materially changes key estimates.
 
 ## References (ALL)
 
