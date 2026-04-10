@@ -1122,6 +1122,12 @@ Now that you have different flags you may want to combine them. Which combinatio
 
 For each case, the total number of triggered quality flags was calculated. Respondents were marked for exclusion when at least *two* indicators suggested problematic response behavior.
 
+Our quality flags were:
+
++ Attention Check: failing the second attention check as defined above
++ Para Data: `speeding_factor > 2`
++ ...
+
 ```{r}
 final_flags <- data_raw %>%
   mutate(
