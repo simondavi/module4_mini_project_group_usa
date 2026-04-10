@@ -675,16 +675,17 @@ A penalised logistic regression model was used to account for sparse categories 
 
 Taken together, these findings suggest that missingness is neither Missing Completely at Random (MCAR) nor purely item-level. Instead, it reflects a combination of respondent characteristics, survey engagement, and design-driven processes operating at the battery level.
 
+
 ## Response Distributions (Erik Paessler)
 
-The fourth kind of data quality indicators are response distributions. Which indicators do you deem relevant and which criterion do you use for flagging?
+**The fourth kind of data quality indicators are response distributions. Which indicators do you deem relevant and which criterion do you use for flagging?**
 
 For response distributions, I focus on **intra-individual (within-person) location and spread indicators** computed with `resquin::resp_distributions()`. Five Likert-scale batteries are examined separately so the statistics remain interpretable within each coherent scale: Trust in Scientists (`TRUST_SCI_`), Climate Government Trust (`CLIM_GOV_`), Climate Emotions (`CLIM_EMO_`), Science Populism (`SCIPOP_`, 8 original items), and Science Information Sources (`SCIINFO_`).
 
 The indicators I deem most relevant are:
 
-- **`ii_sd`** (intra-individual standard deviation): captures within-person response spread. A value of zero flags **straightliners** — respondents who chose the identical option for every item in a battery, a strong marker of inattentive responding.
-- **`mahal`** (Mahalanobis distance): captures how unusual a respondent's response profile is relative to the sample distribution. Respondents in the **bottom 10%** have profiles suspiciously close to the sample centroid (overly "average", consistent with random or careless uniform clicking); respondents in the **top 10%** show unusually deviant profiles.
+- **`ii_sd`** (intra-individual standard deviation): captures within-person response spread. A value of zero flags **straightliners**, i.e. respondents who chose the identical option for every item in a battery, a strong marker of inattentive responding.
+- **`mahal`** (Mahalanobis distance): captures how unusual a respondent's response profile is relative to the sample distribution. Respondents in the **bottom 10%** have profiles suspiciously close to the sample centroid (overly uniform, consistent with careless responding), whereas respondents in the **top 10%** show unusually deviant profiles.
 - **`ii_mean` / `ii_median`**: secondary indicators used to characterise the nature of flagged profiles (e.g., persistent floor or ceiling responding combined with near-zero SD).
 
 **Flagging criterion**: A case is flagged as a potential data quality concern if it meets at least one of the following for the focal SCIPOP battery: (1) `ii_sd == 0` (straightlining), or (2) Mahalanobis distance in the bottom or top 10% of the sample. All other batteries serve as comparative context.
@@ -729,7 +730,7 @@ cat(" Science Populism \n");     summary(rd_scipop)
 cat(" Science Info Sources \n"); summary(rd_sciinfo)
 ```
 
-The `ii_mean` values differ noticeably across batteries. Trust in Scientists and Science Information Sources tend toward the upper end of the scale, while Science Populism responses cluster more around the midpoint. Climate Emotions stands out with higher missingness, reflected in the `na_n` column — respondents more frequently skipped individual items compared to the other batteries.
+The `ii_mean` values differ noticeably across batteries. Trust in Scientists has the highest average mean (3.81 on a 5-point scale), indicating that US respondents generally lean toward trusting scientists. Science Populism and Science Info Sources both sit near 3.44, but on different scales — for SCIPOP (1–5) this is around the midpoint, while SCIINFO appears to use a wider scale. Climate Emotions has the lowest average mean (2.76), suggesting US respondents more often report lower emotional engagement with climate change. Climate Emotions and Climate Government Trust also stand out for missingness: their 75th percentile for `n_na` reaches the maximum possible value, indicating that when respondents have missing items in these batteries, they tend to be missing all items, which indicates structure behind the skip patterns as opposed to random non-response.
 
 ### Univariate Distribution Plots
 
@@ -752,12 +753,13 @@ plot_univariate(rd_scipop,    "Response Distributions – Science Populism")
 plot_univariate(rd_sciinfo,   "Response Distributions – Science Info Sources")
 ```
 
-The `ii_sd` histograms show a spike at zero across all batteries — straightliners — but the spike is most pronounced for CLIM_GOV and SCIPOP. The `ii_mean` distributions differ in shape: Trust in Scientists is left-skewed (most respondents express moderate-to-high trust), whereas SCIPOP is roughly symmetric around the midpoint. Mahalanobis distances are right-skewed in all batteries, as expected under a chi-squared distribution.
+The `ii_sd` histograms show a spike at zero across all batteries, indicating straightlining. This spike is most pronounced for **Trust in Scientists** (~650 cases) and **Science Populism** (~625 cases), and notably smaller for Climate Gov. Trust (~350) and Climate Emotions (~300). This is notable because Trust in Scientists, despite expressing the most positive location on average, also contains the most within-person homogeneity cases. The `ii_mean` distributions confirm the substantive differences across batteries: Trust in Scientists is left-skewed (most respondents lean toward 4–5), whereas SCIPOP is roughly symmetric around 3, and Climate Emotions is more evenly spread across the full range with a slight left lean toward lower values. Mahalanobis distances are right-skewed in all batteries, as expected under a chi-squared distribution, with Trust in Scientists showing the most extreme outliers (up to ~10).
 
-### Bivariate Scatter Plots (Indicator Correlations)
+### Indicator Boxplots by Battery
 
 ```{r}
-# Pairs plots showing correlations between indicators within each battery, (NA-count columns excluded)
+# Boxplots of each indicator per battery
+# (NA-count columns excluded for clarity)
 
 rd_trust_sci |> select(-contains("na")) |> plot(main = "Trust in Scientists – USA")
 rd_clim_gov  |> select(-contains("na")) |> plot(main = "Climate Gov. Trust – USA")
@@ -766,12 +768,17 @@ rd_scipop    |> select(-contains("na")) |> plot(main = "Science Populism – USA
 rd_sciinfo   |> select(-contains("na")) |> plot(main = "Science Info Sources – USA")
 ```
 
-Across all batteries, `ii_mean` and `ii_median` are highly correlated (near-diagonal), confirming that both location indicators capture the same dimension. The relationship between `ii_sd` and `mahal` is positive but non-linear: straightliners (ii_sd ≈ 0) tend to have low Mahalanobis distances, since a flat all-same response profile often coincides with the modal response category. This pattern is clearest in the SCIPOP and CLIM_GOV batteries.
+The boxplots complement the histograms by highlighting spread and outlier structure per indicator. Key patterns across batteries:
+
+- **`ii_mean`**: Trust in Scientists has the narrowest IQR positioned high on the scale (IQR ≈ 3.2–4.5), confirming concentrated high-trust responding. Science Info Sources has the widest IQR (≈ 2.1–4.7), reflecting more heterogeneous scale use across its items.
+- **`ii_sd`**: Science Info Sources shows the highest median and widest IQR for within-person spread, consistent with its broader scale range. Trust in Scientists and SCIPOP have lower median SD but show many outliers at the upper end, which are respondents who used the full range of the scale.
+- **`ii_median`**: SCIPOP has a relatively narrow IQR (≈ 3–4), while Science Info Sources spans nearly the full scale, reflecting its different item content and scale range.
+- **`mahal`**: All batteries show heavy right tails with numerous outliers well beyond the whiskers, confirming that a small subset of respondents have somewhat unusual response profiles in each battery. Trust in Scientists produces the most extreme Mahalanobis outliers (up to ~10.2).
 
 ### Straightlining: All Batteries
 
 ```{r}
-# Count respondents with ii_sd == 0 (indicating identical response to every item) in each battery
+# Count respondents with ii_sd == 0 (identical response to every item) in each battery
 
 straight_summary <- tibble(
   Battery    = c("Trust in Scientists", "Climate Gov. Trust", "Climate Emotions",
@@ -791,19 +798,20 @@ straight_summary <- tibble(
 print(straight_summary)
 ```
 
-Straightlining rates vary across batteries. Climate Government Trust and Science Populism tend to show the highest proportions, which may reflect the ideological or evaluative nature of those items — some respondents may reject the entire construct rather than differentiate between items. Trust in Scientists and Science Information Sources generally show lower straightlining, possibly because respondents find it easier to discriminate between items with more concrete referents.
+Straightlining rates are highest for **Trust in Scientists** (15.8%) and **Science Populism** (14.2%), and substantially lower for Climate Gov. Trust (8.0%), Science Info Sources (8.8%), and Climate Emotions (7.1%). The high rate for SCIPOP is of primary concern given its role as the focal construct: roughly 1 in 7 US respondents gave an identical answer to all eight populism items. For Trust in Scientists, the high rate likely reflects the battery's strong positive consensus. Selecting the same high-trust option throughout may reflect overall homogeneity for some respondents rather than inattentiveness, though the two are not distinguishable from response data alone. The lower rates in Climate Emotions may partly reflect that the items tap distinct emotions (e.g., fear, hope, anger), making pure straightlining harder even for inattentive respondents.
 
 ### Mahalanobis Distance: All Batteries
 
 ```{r}
+# Helper function: summarise bottom 10% and top 10% Mahalanobis for a given rd object
 mahal_summary <- function(rd, label) {
   p10 <- quantile(rd$mahal, 0.10, na.rm = TRUE)
   p90 <- quantile(rd$mahal, 0.90, na.rm = TRUE)
   cat(sprintf("\n %s \n", label))
   cat(sprintf("  10th pct cutoff: %.3f   |   90th pct cutoff: %.3f\n", p10, p90))
-  cat("  Bottom 10% (uniform profiles):\n")
+  cat("  Bottom 10% (most uniform profiles):\n")
   print(summary(rd |> filter(mahal <= p10)))
-  cat("  Top 10% (deviant profiles):\n")
+  cat("  Top 10% (most deviant profiles):\n")
   print(summary(rd |> filter(mahal >= p90)))
 }
 
@@ -814,33 +822,33 @@ mahal_summary(rd_scipop,    "Science Populism")
 mahal_summary(rd_sciinfo,   "Science Info Sources")
 ```
 
-The bottom-10% Mahalanobis groups (most uniform profiles) are characterised by low `ii_sd` and `ii_mean` / `ii_median` values close to the sample mean — consistent with undifferentiated, midpoint-heavy responding. The top-10% groups show higher `ii_sd` and more extreme `ii_mean` values, indicating strong scale use in one direction. Across batteries, the SCIPOP bottom-10% group is particularly notable: the combination of low spread and near-midpoint means is consistent with careless, non-discriminating responses on a construct that requires genuine attitude engagement.
+Across all batteries, the bottom-10% Mahalanobis groups share a consistent signature: near-zero `ii_sd` (often at exactly 0) combined with a modal response location — for Trust in Scientists, the uniform response is near 4–5 (high trust); for SCIPOP, it clusters near 3 (midpoint). This indicates that these are straightlining profiles anchored at the most common category, rather than respondents close to the mean in a multidimensional sense. The SCIPOP bottom 10% is of most interest here: median `ii_sd` = 0 and mean `ii_mean` ≈ 3.25 on a 1–5 scale, a pattern consistent with respondents repeatedly selecting the neutral midpoint without engaging with item differences.
+
+The top-10% groups show higher `ii_sd` and more extreme `ii_mean` values across all batteries. For Trust in Scientists, the top-10% `ii_mean` averages 3.26 with SD of 1.27, which is considerably more variable than the full sample average. These may represent respondents with  nuanced or differentiated views, but given the extreme distances, some may also reflect inattentive responding with random category switches.
 
 ### Sensitivity Check: `min_valid_responses` Threshold
 
 ```{r}
-# CLIM_EMO is used here because it contains notable item-level missings,
-# making it the best illustration of the threshold trade-off
+# CLIM_EMO is used here because it has the highest average number of missing items,
+# making it the natural test case for the min_valid_responses threshold.
 
-cat("CLIM_EMO: default (min_valid = 1.0)\n")
+cat(" CLIM_EMO: default (min_valid = 1.0) \n")
 clim_emo |> resp_distributions(min_valid_responses = 1.0) |> summary()
 
-cat("CLIM_EMO: min_valid = 0.9\n")
+cat(" CLIM_EMO: min_valid = 0.9 \n")
 clim_emo |> resp_distributions(min_valid_responses = 0.9) |> summary()
 
-cat("CLIM_EMO: min_valid = 0.5\n")
+cat(" CLIM_EMO: min_valid = 0.5 \n")
 clim_emo |> resp_distributions(min_valid_responses = 0.5) |> summary()
-
-# ii_mean and ii_median remain stable across thresholds and ii_sd and mahal become less reliable as more missings are tolerated.
 ```
 
-Lowering the threshold recovers additional cases but at the cost of reliability: `ii_sd` and `mahal` become noisier when computed on incomplete item sets, as the spread and distance metrics depend on the full response vector. Since `ii_mean` and `ii_median` are robust regardless, they remain useful for partially answered batteries, but the flagging criteria based on `ii_sd` and `mahal` are applied only where all items are present.
+The sensitivity analysis shows virtually no change in the summary statistics across all three threshold settings. This is consistent with the pattern already observed in the descriptives: when respondents have missing items in the CLIM_EMO battery, the 75th percentile of `n_na` is at the maximum (9 items), indicating that missings occur in an all-or-nothing fashion. Lowering the threshold therefore does not bring in any partially-completed respondents, because no such partial completions exist in practice. The default strict threshold (1.0) is retained, and `ii_sd` and `mahal` remain reliable for the cases that are included.
 
 ### Flagging: SCIPOP Battery
 
 ```{r}
-# Focal flagging on Science Populism
-# A case is flagged if ii_sd == 0 (straightlining) OR mahal in bottom/top 10%.
+# Focal flagging on Science Populism — the primary construct of this assignment.
+# A case is flagged if: ii_sd == 0 (straightlining) OR mahal in bottom/top 10%.
 
 p10_scipop <- quantile(rd_scipop$mahal, 0.10, na.rm = TRUE)
 p90_scipop <- quantile(rd_scipop$mahal, 0.90, na.rm = TRUE)
@@ -862,7 +870,7 @@ rd_scipop_flagged |>
   )
 ```
 
-The two criteria partially overlap: most straightliners also fall in the bottom-10% Mahalanobis group, so combining them does not simply double the flagged count. The combined flag identifies a small but non-trivial share of US respondents whose SCIPOP response profiles give reason for concern. These cases are candidates for removal or sensitivity analysis in subsequent steps, where they can be compared against flags from other quality indicators (attention checks, paradata) to identify respondents who triggered multiple warning signs.
+The two criteria overlap substantially: most straightliners (ii_sd = 0) also fall in the bottom-10% Mahalanobis group, since a flat uniform profile is a special case of a profile close to the modal centroid. Combining the two flags therefore does not double the flagged count. The joint criterion identifies a share of US respondents whose SCIPOP response profiles give reason for concern. These cases are candidates for exclusion or sensitivity testing in subsequent analyses, where they can be cross-referenced with flags from other quality indicators (attention checks, paradata) to identify respondents who triggered multiple warning signs.
 
 
 
