@@ -57,7 +57,8 @@ In a first step you have to define your R setup (e.g., install und load relevant
 ```{r}
 ####  ------------- Load Packages ------------- ####
 library(here)           
-library(tidyverse)     
+library(tidyverse) 
+library(dplyr)
 library(skimr)          
 library(labelled)       
 library(psych)
@@ -913,9 +914,9 @@ The two criteria overlap substantially: most straightliners (ii_sd = 0) also fal
 
 *The last kind of data quality indicators are response styles. Which style(s) do you want to focus on and how do you flag concerning cases?*
 
-To enable coherent analyses of response styles (1.) and patterns (2.), the longest possible sequence of 5pt Likert scale items entailing our focal scale - the SCIPOP scale - was used. I deliberately chose not to harmonize these items, allowing the authentic capture of natural differences in scale use across items without introducing artefactual distortions through rescaling. This preserves the ordinal nature of the data as well as item-specific variance, which is essential for the precise identification of patterns.
+To enable coherent analyses of response styles and patterns, the longest possible sequence of 5pt Likert scale items entailing our focal scale - the SCIPOP scale - was used (starting with "GOALS_PRIO, ending with SCIPOP), entailing 47 items in total. I deliberately chose not to harmonize these items, allowing the authentic capture of natural differences in scale use across items without introducing artefactual distortions through rescaling. This preserves the ordinal nature of the data as well as item-specific variance, which is essential for the precise identification of patterns.
 
-### 1. Response Styles
+### Response Styles
 ```{r}
 # 1: Response styles
 all5pt <- data_raw %>%
@@ -923,6 +924,7 @@ select(ID_QUALTRICS, starts_with("GOALS_PRIO_"),
 starts_with("GOALS_TACKLE_"),
 starts_with("NORMPERC_"),
 starts_with("WILLVUL_"),
+starts_with("TRUST_SCI"),
 TRUST_METHOD,
 TRUST_PEW,
 starts_with("OUTSPOKEN_"),
@@ -937,6 +939,7 @@ select(starts_with("GOALS_PRIO_"),
 starts_with("GOALS_TACKLE_"),
 starts_with("NORMPERC_"),
 starts_with("WILLVUL_"),
+starts_with("TRUST_SCI"),
 TRUST_METHOD,
 TRUST_PEW,
 starts_with("OUTSPOKEN_"),
@@ -988,12 +991,12 @@ all5pt_RS2_missing <- all5pt_RS2 %>%
 
 all5pt_RS2_missing 
 
-# does not change much (from 23.3% to 22.0% => decide to drop all of them)
+# does not change much (from 19.0% to 17.1% => decide to drop all of them to be able to calculate meaningful response styles and patterns; see explanation below)
 
 ```
 
-23.3% of U.S. participants do not have response style indicators due to missing answers, as the minimum proportion of valid responses was set to 100%. Reducing this threshold (e.g., to 50%) only marginally decreased the proportion of missing response style indicators (to approximately 22%). Given this negligible gain in sample size, alongside the increased arbitrariness in threshold selection, I retained the more stringent criterion of complete responses and excluded all cases with any missing values.
-Accordingly, only respondents who answered all 5-point items (GOALS_PRIO_, GOALS_TACKLE_, NORMPERC_, WILLVUL_, etc.) were included in the response style analyses, resulting in the exclusion of roughly 23% of the sample. The subsequent exploratory analyses of response styles and response patterns are therefore based on the remaining 3.562 respondents.
+19.0% of U.S. participants do not have response style indicators due to missing answers, as the minimum proportion of valid responses was set to 100%. Exploratively reducing this threshold to 50% only marginally decreased the proportion of missing response style indicators to 17.1%. Given this negligible gain in sample size, alongside the increased arbitrariness in threshold selection, I retained the more stringent criterion of complete responses and excluded all cases with any missing values. The reasoning behind this was that at some point, indicators such as "longest string length" become meaningless when the percentage of valid responses is too low.
+Accordingly, only respondents who answered all 5-point items (GOALS_PRIO_, GOALS_TACKLE_, NORMPERC_, WILLVUL_, etc.) were included in the response style analyses, resulting in the exclusion of  19.0% of all US respondents. Note that this is roughly 1/5 of the USA participants which means excluding a considerable portion of respondents. The subsequent exploratory analyses of response styles and response patterns are therefore based on the remaining 3.533 respondents.
 
 ```{r}
 all5pt_RS_clean <- all5pt_RS %>%
@@ -1025,7 +1028,9 @@ MRS (midpoint response style) shows higher frequencies near 0% and 100%, indicat
 
 NERS (non-extreme response style) similarly displays peaks toward both extremes, implying that respondents either rarely or frequently avoid extreme categories.
 
-### 2. Response patterns
+Dealing with attitudes, ERS/NERS may not be the most useful indicators. Accordingly, response patterns are calculated below.
+
+### Response patterns
 ```{r}
 # 2: Response patterns
 all5pt_RP <- all5pt_only %>%
@@ -1135,10 +1140,11 @@ For each indicator, the top 5% or bottom 5% of the distribution were defined as 
 A respondent was flagged as potentially suspect if at least one of these two indicators was in the respective extreme tail.
 This approach emphasizes unusual response patterns rather than specific response styles (e.g., extreme or mid‑point responding) and may therefore be less confounded with substantive attitudes. I flagged potentially careless respondents complemented by low transition counts, capturing monotonous responding.
 
-Respondents in the extreme 5% tails were marked as suspicious: top 5% longest string length OR bottom 5% transitions. 
+Respondents in the extreme 5% tails were marked as suspicious: top 5% longest string length OR bottom 5% transitions. The absolute threshold for longest_string_length was >= 47, for n_transitions it was = 0.
+
 This data-driven approach prioritizes response patterns over style indicators (ERS/MRS), reducing confounding with substantive attitudes.
 
-Out of 3.562 complete cases, this identified 259 respondents (roughly 7%) as potentially careless.
+Out of 3.533 complete cases, this identified 220 respondents (roughly 6%) as potentially careless.
 
 ## All together
 
