@@ -28,7 +28,7 @@ bibliography: references.bib
 ---
 
 
-## Introduction (ALL)
+## Introduction
 
 This assignment explores data quality aspects of United States of America (USA) data set of the Trust in Science and Science-related Populism (TISP) project. The TISP project consists of a consortium of 241 researchers from 179 institutions focused on global public opinion regarding science. Data was collected from 68 countries from November 2022 to August 2023, with the survey gathering the opinions of 71,922 respondents in total (TISP, n.d).
 
@@ -49,7 +49,7 @@ As our interest here is in the data quality aspects of the dataset, we consider 
 
 Some parts of the assignment were intended to be completed collaboratively and others individually, each teammate was responsible for at least one section of the indicator. Overall, we worked together constructively and collaboratively on this script. Consequently, the listed names do not fully capture the collaborative nature of the work, as all team members contributed across multiple sections.
 
-## Data Preparation (ALL)
+## Data Preparation
 
 In a first step you have to define your R setup (e.g., install und load relevant packages) and need to read in the dataset. Do your basic cleanup and wrangling here (e.g. filtering for your country group, selection of used variables etc.). 
 
@@ -181,7 +181,7 @@ data_raw <- labelled::set_variable_labels(
 ```
 
 
-## Descriptive Analysis (ALL)
+## Descriptive Analysis
 
 Provide basic descriptive statistics for your (sub)sample and instrument(s).
 
@@ -198,7 +198,7 @@ data_des
 
 ## Attention Checks (David Simon)
 
-The first kind of data quality indicators are check items. What check items are provided in the dataset and did participants pass the check?
+*The first kind of data quality indicators are check items. What check items are provided in the dataset and did participants pass the check?*
 
 ```{r}
 attcheck1.fails <- function(attcheck1){
@@ -276,7 +276,7 @@ These are candidates of careless respondents and therefore "flagged" in this sec
 
 ## Para Data (Elnari Potgieter)
 
-The second kind of data quality indicators are para data. What kind of para data can you find in the data? Show with an example how this type of variable can be used for DQA!
+*The second kind of data quality indicators are para data. What kind of para data can you find in the data? Show with an example how this type of variable can be used for DQA!*
 
 1. Total Response Time
 
@@ -459,7 +459,7 @@ I would be reluctant to exclude respondents based on response times only, as 18-
 
 ## Missing Data (Ana)
 
-The third kind of data quality indicators are missing data. How much data is missing, which data missing pattern occurs and are there cases with many missing data? (in respect to your choosen instrument(s) / variable(s)).
+*The third kind of data quality indicators are missing data. How much data is missing, which data missing pattern occurs and are there cases with many missing data? (in respect to your choosen instrument(s) / variable(s)).*
 
 ```{r}
 ####  ------------- Load Packages ------------- ####
@@ -701,7 +701,7 @@ Taken together, these findings suggest that missingness is neither Missing Compl
 
 ## Response Distributions (Erik Paessler)
 
-The fourth kind of data quality indicators are response distributions. Which indicators do you deem relevant and which criterion do you use for flagging?
+*The fourth kind of data quality indicators are response distributions. Which indicators do you deem relevant and which criterion do you use for flagging?*
 
 For response distributions, I focus on **intra-individual (within-person) location and spread indicators** computed with `resquin::resp_distributions()`. Five Likert-scale batteries are examined separately so the statistics remain interpretable within each coherent scale: Trust in Scientists (`TRUST_SCI_`), Climate Government Trust (`CLIM_GOV_`), Climate Emotions (`CLIM_EMO_`), Science Populism (`SCIPOP_`, 8 original items), and Science Information Sources (`SCIINFO_`).
 
@@ -891,6 +891,18 @@ rd_scipop_flagged |>
     n_flagged       = sum(flag_rd,           na.rm = TRUE),
     prop_flagged    = mean(flag_rd,          na.rm = TRUE)
   )
+
+# Write flag back to data_raw as logical TRUE / FALSE / NA
+# rd_scipop$id = row number in data_raw (scipop was selected without reordering)
+data_raw <- data_raw |>
+  mutate(row_id = row_number()) |>
+  left_join(
+    rd_scipop_flagged |>
+      transmute(row_id = id,
+                rd_flag = as.logical(flag_rd)),
+    by = "row_id"
+  ) |>
+  select(-row_id)
 ```
 
 The two criteria overlap substantially: most straightliners (ii_sd = 0) also fall in the bottom-10% Mahalanobis group, since a flat uniform profile is a special case of a profile close to the modal centroid. Combining the two flags therefore does not double the flagged count. The joint criterion identifies a share of US respondents whose SCIPOP response profiles give reason for concern. These cases are candidates for exclusion or sensitivity testing in subsequent analyses, where they can be cross-referenced with flags from other quality indicators (attention checks, paradata) to identify respondents who triggered multiple warning signs.
@@ -899,7 +911,7 @@ The two criteria overlap substantially: most straightliners (ii_sd = 0) also fal
 
 ## Response Styles (Josefina Sommer)
 
-The last kind of data quality indicators are response styles. Which style(s) do you want to focus on and how do you flag concerning cases?
+*The last kind of data quality indicators are response styles. Which style(s) do you want to focus on and how do you flag concerning cases?*
 
 To enable coherent analyses of response styles (1.) and patterns (2.), the longest possible sequence of 5pt Likert scale items entailing our focal scale - the SCIPOP scale - was used. I deliberately chose not to harmonize these items, allowing the authentic capture of natural differences in scale use across items without introducing artefactual distortions through rescaling. This preserves the ordinal nature of the data as well as item-specific variance, which is essential for the precise identification of patterns.
 
@@ -1098,13 +1110,25 @@ all5pt_RP_clean %>%
   geom_histogram(bins = 30, alpha = 0.7, position = "identity") +
   facet_wrap(vars(indicator), scales = "free_x", nrow = 1) +
   scale_fill_manual(
-    values = c("0" = "steelblue", "1" = "firebrick"),  
-    labels = c("0" = "Not suspicious", "1" = "Suspicious"), 
-    name = "Status" 
+    values = c("0" = "steelblue", "1" = "firebrick"),
+    labels = c("0" = "Not suspicious", "1" = "Suspicious"),
+    name = "Status"
   ) +
   labs(x = "Indicator value", y = "Number of respondents") +
   theme_classic(base_size = 15)
 
+# Write flag back to data_raw as logical TRUE / FALSE / NA
+# all5pt$ID_num = row_number() from data_raw, so id maps to data_raw row numbers.
+# Respondents absent from all5pt_RP_clean (dropped via drop_na) receive NA.
+data_raw <- data_raw |>
+  mutate(row_id = row_number()) |>
+  left_join(
+    all5pt_RP_clean |>
+      transmute(row_id = id,
+                rs_flag = as.logical(flag_suspect)),
+    by = "row_id"
+  ) |>
+  select(-row_id)
 ```
 
 For each indicator, the top 5% or bottom 5% of the distribution were defined as ‘extreme’.
@@ -1116,24 +1140,27 @@ This data-driven approach prioritizes response patterns over style indicators (E
 
 Out of 3.562 complete cases, this identified 259 respondents (roughly 7%) as potentially careless.
 
-## All together (ALL)
+## All together
 
-Now that you have different flags you may want to combine them. Which combinations do you deem suitable? And how to (partly) filter the identified cases?
+*Now that you have different flags you may want to combine them. Which combinations do you deem suitable? And how to (partly) filter the identified cases?*
 
 For each case, the total number of triggered quality flags was calculated. Respondents were marked for exclusion when at least *two* indicators suggested problematic response behavior.
 
 Our quality flags were:
 
-+ Attention Check: failing the second attention check as defined above
-+ Para Data: `speeding_factor > 2`
-+ ...
++ Attention Check: failing the first attention check (writing an incorrect answer)
++ Para Data: `speeding_factor > 2` (completing the survey in less than half the median time)
++ Response Distributions: `ii_sd == 0` (straightlining) OR Mahalanobis distance in the bottom or top 10% on the SCIPOP battery
++ Response Styles/Patterns: longest string length in the top 5% OR number of transitions in the bottom 5% across the full 5-point item sequence
 
 ```{r}
 final_flags <- data_raw %>%
   mutate(
     # include all existing quality indicators
     flag_attention = attentioncheck_flag,
-    flag_paradata = paradata_flag,
+    flag_paradata  = paradata_flag,
+    flag_rd        = rd_flag,
+    flag_rs        = rs_flag,
   ) %>%
   mutate(
     # count number of triggered flags per respondent
@@ -1150,15 +1177,23 @@ final_flags %>%
     "excluded [%]" = mean(final_exclude, na.rm = TRUE) * 100,
     "Flags (M)" = mean(n_flags, na.rm = TRUE)
   )
+
+n_total      <- nrow(final_flags)
+n_excluded   <- sum(final_flags$final_exclude, na.rm = TRUE)
+pct_excluded <- round(mean(final_flags$final_exclude, na.rm = TRUE) * 100, 1)
+mean_flags   <- round(mean(final_flags$n_flags, na.rm = TRUE), 2)
+
 ```
 
-## Discuss (ALL)
+Applying the two-flag exclusion rule, **`r n_excluded` of `r n_total` US respondents (`r pct_excluded`%) are marked for removal** from the analytical sample. The mean flag count of `r mean_flags` indicates that most respondents triggered at most one quality indicator, confirming that the individual flags capture partly distinct concerns rather than the same respondents repeatedly. Two concurrent flags used together strikes a reasonable balance between data quality and data loss, in retaining the large majority of the sample while targeting the subset who exhibit statistically problematic response behaviour.
+
+## Discuss
 
 The combined exclusion rule suggests that only respondents who triggerd at least two flags are removed from the analytical sample. This decision rule prioritizes specificity over sensitivity, thereby minimizing the risk of over-excluding valid but unusual respondents, for example since speeding alone may reflect familiarity with the questionnaire rather than careless responding, combining it with another indicator, e.g. attention-check, failure provides a stronger indication of insufficient data quality.
 
 As a robustness check, future analyses could compare substantive results with and without flagged cases to evaluate whether the exclusion materially changes key estimates.
 
-## References (ALL)
+## References
 
 ::: {#refs}
 :::
