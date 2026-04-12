@@ -57,8 +57,7 @@ In a first step you have to define your R setup (e.g., install und load relevant
 ```{r}
 ####  ------------- Load Packages ------------- ####
 library(here)           
-library(tidyverse) 
-library(dplyr)
+library(tidyverse)     
 library(skimr)          
 library(labelled)       
 library(psych)
@@ -279,7 +278,7 @@ These are candidates of careless respondents and therefore "flagged" in this sec
 
 *The second kind of data quality indicators are para data. What kind of para data can you find in the data? Show with an example how this type of variable can be used for DQA!*
 
-1. Total Response Time
+### Total Response Time
 
 Total response time refers to the time it takes a respondent to complete the survey. The data set contains a "Duration" variable, analysed here, capturing response time in seconds. 
 
@@ -312,7 +311,7 @@ boxplot(data_raw$Duration[!is.na(data_raw$Duration)],
 ```
 Boxplot reflects very high value outliers, which is less of concern in terms of response quality than the very low value durations as the former may still have paid attention, but they do impact the mean and median, which impacts further analysis. I considered running further analysis without the 1st and99th percentile respondents, but after consulting the course example and Appendix B of [-@leiner2019], it appears that extreme outliers are not necessarily removed at this point. 
 
-2. Average Time per Item
+### Average Time per Item
 
 The average time per item indicator captures the average (mean) time spent on survey questions.
 
@@ -327,7 +326,7 @@ average_time_per_item <- data_raw$Duration/ num_items
 mean_average_time_per_item <- mean(average_time_per_item, na.rm = TRUE)
 
 # Output the results
-cat("Average time per item for each respondent (in seconds):\n")
+cat("Average time per item for each respondent (in seconds):", average_time_per_item, "seconds\n")
 cat("\nMean of all average times per item (in seconds):", mean_average_time_per_item, "seconds\n")
 ```
 Using the filtered durations, the average time per item is 9.82 seconds.
@@ -351,7 +350,7 @@ cat("Proportion of respondents below the cutoff:", proportion_below_cutoff, "\n"
 ```
 845 respondents (18,37%) had an average time per item below 2 seconds. I am reluctant to exclude respondents only based on this criteria and will proceed with further analysis.
 
-3. Relative Time Completion
+### Relative Time Completion
 
 Relative time completion compares the speed of completing the questionnaire for a respondent to the median completion time of the sample. 
 
@@ -394,7 +393,7 @@ cat("Proportion of respondents faster than two times the median:", proportion_fa
 ```
 883 (20,24%) respondents where twice as fast as the median of the relative completion time. I am reluctant to exclude this many respondents based on this criteria, so I proceed with also considering the speeding factor as per the course example.
 
-4. Speeding Factor
+### Speeding Factor
 
 [@leiner2019] suggests a factor of larger than two as outliers.This is calculated using their response time in relation to the median of the sample. 
 
@@ -449,7 +448,7 @@ data_raw <- data_raw %>%
 # Set FALSE otherwise
 ```
 
-5. Summary
+### Summary
 
 With 845 respondents (18,37%) with an average time per item below 2 seconds, 883 (20,24%) respondents twice as fast as the median of the relative completion time and 1197 (27,44%) respondents with speeding factor above 2, it does appear like many respondents were answering the questionnaire quite speedily. 
 
@@ -458,28 +457,25 @@ I ran the same analysis, "trimming" the 1st and 99th percentile to see if the hi
 I would be reluctant to exclude respondents based on response times only, as 18-27% of responses would be lost this way. My suggestion would be to align respondents flagged for response times with other tests - for example attention checks, response patterns and response styles.
 
 
-## Missing Data (Ana)
+## Missing Data (Ana Cristancho)
 
 *The third kind of data quality indicators are missing data. How much data is missing, which data missing pattern occurs and are there cases with many missing data? (in respect to your choosen instrument(s) / variable(s)).*
 
 ```{r}
-####  ------------- Load Packages ------------- ####
-ds_usa <- read.csv(here("00_data/ds_full.csv"), sep = ";") %>%
-  filter(COUNTRY_CODE == "USA")
-
-trust_sci_usa <- ds_usa |>
+# data_raw (defined in Data Preparation) is used directly
+trust_sci_usa <- data_raw |>
   dplyr::select(dplyr::starts_with("TRUST_SCI_"))
 
-clim_gov_usa <- ds_usa |>
+clim_gov_usa <- data_raw |>
   dplyr::select(dplyr::starts_with("CLIM_GOV_"))
 
-clim_emo_usa <- ds_usa |>
+clim_emo_usa <- data_raw |>
   dplyr::select(dplyr::starts_with("CLIM_EMO_"))
 
-scipop_usa <- ds_usa |>
+scipop_usa <- data_raw |>
   dplyr::select(dplyr::starts_with("SCIPOP_"))
 
-missing_diag_usa <- ds_usa |>
+missing_diag_usa <- data_raw |>
   dplyr::select(
     dplyr::starts_with("TRUST_SCI_"),
     dplyr::starts_with("CLIM_GOV_"),
@@ -500,7 +496,7 @@ naniar::gg_miss_var(missing_diag_usa, show_pct = TRUE)
 
 ```
 
-The trust-in-scientists battery shows moderate but highly uniform missingness across items, with each item missing in roughly 22% of cases. This suggests that missingness in this battery is not item-specific, but instead reflects a common section-level process affecting all trust items similarly.
+The trust-in-scientists battery shows moderate but highly uniform missingness across items, with each item missing in roughly 18% of cases. This suggests that missingness in this battery is not item-specific, but instead reflects a common section-level process affecting all trust items similarly.
 
 ```{r}
 naniar::gg_miss_upset(missing_diag_usa)
@@ -510,7 +506,7 @@ VIM::aggr(missing_diag_usa) |> plot(numbers = TRUE, prop = FALSE)
 
 Missingness is concentrated in recurring blocks of variables rather than dispersed randomly across items. This suggests structured battery- or section-level missingness rather than simple random item-level nonresponse. 
 
-#Person-level Missingness
+### Person-level Missingness
 
 ```{r}
 n_miss_per_case <- is.na(missing_diag_usa) |>
@@ -525,7 +521,7 @@ missing_cases_usa <- tibble(
 summary(missing_cases_usa$n_missing)
 
 ```
-Respondent-level missingness across the combined batteries was highly uneven. While at least half of respondents had no missing values, the upper quartile was missing 16 or more items, and the maximum was 36 missing items.
+Respondent-level missingness across the combined batteries was highly uneven. While at least half of respondents had no missing values, the upper quartile was missing 16 or more items, and the maximum was 41 missing items.
 ```{r}
 missing_cases_usa |>
   dplyr::filter(n_missing == ncol(missing_diag_usa)) |>
@@ -575,7 +571,7 @@ battery_missing_summary
 ```
 
 
-#Item-Level Missingness
+### Item-Level Missingness
 
 ```{r}
 item_missing_usa <- missing_diag_usa |>
@@ -606,10 +602,10 @@ ggplot(item_missing_usa, aes(x = reorder(variable, pct_missing), y = pct_missing
 
 The trust-in-scientists battery shows moderate but very even missingness across items, suggesting that nonresponse reflects a common battery-level process rather than selective skipping of particular trust items.
 
-#Domain-level missingness
-
+### Domain-level missingness
+ 
 ```{r}
-domain_missing_usa <- ds_usa |>
+domain_missing_usa <- data_raw |>
   dplyr::transmute(
     miss_trust_sci = as.integer(dplyr::if_all(dplyr::starts_with("TRUST_SCI_"), is.na)),
     miss_clim_gov  = as.integer(dplyr::if_all(dplyr::starts_with("CLIM_GOV_"), is.na)),
@@ -623,11 +619,20 @@ domain_missing_usa |>
 cor(domain_missing_usa)
 round(cor(domain_missing_usa), 3)
 
+# Missing data flag: TRUE if the entire SCIPOP battery (all 8 original items) is missing
+# Respondents missing the focal construct entirely cannot contribute to substantive analyses
+data_raw <- data_raw %>%
+  mutate(
+    missing_flag = rowSums(!is.na(select(., SCIPOP_common, SCIPOP_good,
+                                             SCIPOP_advantage, SCIPOP_cahoots,
+                                             SCIPOP_influence, SCIPOP_involved,
+                                             SCIPOP_lifeexp, SCIPOP_rely))) == 0
+  )
 
 ```
-Battery-level missingness indicators were very strongly correlated, especially between climate-government and climate-emotion items (r = 0.997) and between trust-in-scientists and science-populism items (r = 0.978). This indicates that missingness is driven by structured module-level processes rather than isolated or random nonresponse.
+Battery-level missingness indicators were very strongly correlated, especially between climate-government and climate-emotion items (r = 0.997) and between trust-in-scientists and science-populism items (r = 0.973). This indicates that missingness is driven by structured module-level processes rather than isolated or random nonresponse.
 
-#Complete-case Restriction
+### Complete-case Restriction
 ```{r}
 complete_cases_usa <- missing_diag_usa |>
   tidyr::drop_na()
@@ -643,9 +648,9 @@ tibble(
 )
 
 ```
-Complete-case analysis would exclude 2,067 of 4,662 respondents (44.3%), showing that listwise deletion is highly costly when these batteries are analysed together, , indicating that complete-case analysis would substantially reduce statistical power and is poorly suited to a dataset in which missingness is structured at the battery level.
+Complete-case analysis would exclude 1785 of 4,362 respondents (40.9%), showing that listwise deletion is highly costly when these batteries are analysed together, , indicating that complete-case analysis would substantially reduce statistical power and is poorly suited to a dataset in which missingness is structured at the battery level.
 
-#Logistic Regression
+### Logistic Regression
 ```{r}
 
 # install.packages("logistf")
@@ -653,34 +658,30 @@ library(logistf)
 
 
 miss_model_trust_sci <- glm(
-  miss_trust_sci ~ DEM_AGE + DEM_EDU + Duration + Response_TYPE 
-  + DEM_GENDER,
-  data = dplyr::bind_cols(ds_usa, domain_missing_usa),
+  miss_trust_sci ~ DEM_AGE + DEM_EDU + Duration + DEM_GENDER,
+  data = dplyr::bind_cols(data_raw, domain_missing_usa),
   family = binomial()
 )
 
 summary(miss_model_trust_sci)
 
-model_df <- dplyr::bind_cols(ds_usa, domain_missing_usa) |>
+model_df <- dplyr::bind_cols(data_raw, domain_missing_usa) |>
   dplyr::filter(
     !is.na(DEM_AGE),
     !is.na(DEM_EDU),
     !is.na(Duration),
-    !is.na(Response_TYPE),
     !is.na(DEM_GENDER)
   ) |>
   dplyr::mutate(
-    DEM_EDU       = factor(DEM_EDU),
-    Response_TYPE = factor(Response_TYPE),
-    DEM_GENDER    = factor(DEM_GENDER)
+    DEM_EDU    = factor(DEM_EDU),
+    DEM_GENDER = factor(DEM_GENDER)
   )
 
-table(model_df$miss_trust_sci, model_df$Response_TYPE)
 table(model_df$miss_trust_sci, model_df$DEM_GENDER)
 table(model_df$miss_trust_sci, model_df$DEM_EDU)
 
 miss_model_trust_sci <- logistf::logistf(
-  miss_trust_sci ~ DEM_AGE + DEM_EDU + Duration + Response_TYPE + DEM_GENDER,
+  miss_trust_sci ~ DEM_AGE + DEM_EDU + Duration + DEM_GENDER,
   data = model_df
 )
  
@@ -695,7 +696,7 @@ tibble::tibble(
 )
 
 ```
-A penalised logistic regression model was used to account for sparse categories and separation issues. Results indicate that missingness in the trust-in-scientists battery is systematically structured. Older respondents were significantly less likely to exhibit whole-battery missingness, and gender differences were also observed, with one group showing a lower probability of omission. Completion duration was positively associated with missingness, although the effect size was small. In contrast, education was not a robust predictor once modelled categorically. A survey-administration variable (Response Type) exhibited near-perfect separation and was therefore interpreted as a structural artefact rather than a substantive determinant of missingness.
+A penalised logistic regression model was used to account for sparse categories and separation issues. Results indicate that missingness in the trust-in-scientists battery is systematically structured. Older respondents were significantly less likely to exhibit whole-battery missingness, and gender differences were also observed, with one group showing a lower probability of omission. Completion duration was positively associated with missingness, although the effect size was small. In contrast, education was not a robust predictor once modelled categorically. A survey-administration variable (Response Type) exhibited near-perfect separation and was therefore early-on interpreted as a structural artefact rather than a substantive determinant of missingness, and not included in the final model.
 
 Taken together, these findings suggest that missingness is neither Missing Completely at Random (MCAR) nor purely item-level. Instead, it reflects a combination of respondent characteristics, survey engagement, and design-driven processes operating at the battery level.
 
@@ -916,7 +917,7 @@ The two criteria overlap substantially: most straightliners (ii_sd = 0) also fal
 
 To enable coherent analyses of response styles and patterns, the longest possible sequence of 5pt Likert scale items entailing our focal scale - the SCIPOP scale - was used (starting with "GOALS_PRIO, ending with SCIPOP), entailing 47 items in total. I deliberately chose not to harmonize these items, allowing the authentic capture of natural differences in scale use across items without introducing artefactual distortions through rescaling. This preserves the ordinal nature of the data as well as item-specific variance, which is essential for the precise identification of patterns.
 
-### Response Styles
+### 1. Response Styles
 ```{r}
 # 1: Response styles
 all5pt <- data_raw %>%
@@ -924,7 +925,6 @@ select(ID_QUALTRICS, starts_with("GOALS_PRIO_"),
 starts_with("GOALS_TACKLE_"),
 starts_with("NORMPERC_"),
 starts_with("WILLVUL_"),
-starts_with("TRUST_SCI"),
 TRUST_METHOD,
 TRUST_PEW,
 starts_with("OUTSPOKEN_"),
@@ -939,7 +939,6 @@ select(starts_with("GOALS_PRIO_"),
 starts_with("GOALS_TACKLE_"),
 starts_with("NORMPERC_"),
 starts_with("WILLVUL_"),
-starts_with("TRUST_SCI"),
 TRUST_METHOD,
 TRUST_PEW,
 starts_with("OUTSPOKEN_"),
@@ -991,7 +990,7 @@ all5pt_RS2_missing <- all5pt_RS2 %>%
 
 all5pt_RS2_missing 
 
-# does not change much (from 19.0% to 17.1% => decide to drop all of them to be able to calculate meaningful response styles and patterns; see explanation below)
+# does not change much (from 23.3% to 22.0%, decide to drop all of them)
 
 ```
 
@@ -1030,7 +1029,8 @@ NERS (non-extreme response style) similarly displays peaks toward both extremes,
 
 Dealing with attitudes, ERS/NERS may not be the most useful indicators. Accordingly, response patterns are calculated below.
 
-### Response patterns
+
+### 2. Response patterns
 ```{r}
 # 2: Response patterns
 all5pt_RP <- all5pt_only %>%
@@ -1158,6 +1158,7 @@ Our quality flags were:
 + Para Data: `speeding_factor > 2` (completing the survey in less than half the median time)
 + Response Distributions: `ii_sd == 0` (straightlining) OR Mahalanobis distance in the bottom or top 10% on the SCIPOP battery
 + Response Styles/Patterns: longest string length in the top 5% OR number of transitions in the bottom 5% across the full 5-point item sequence
++ Missing Data: entire SCIPOP battery missing (all 8 original items NA)
 
 ```{r}
 final_flags <- data_raw %>%
@@ -1167,6 +1168,7 @@ final_flags <- data_raw %>%
     flag_paradata  = paradata_flag,
     flag_rd        = rd_flag,
     flag_rs        = rs_flag,
+    flag_missing   = missing_flag,
   ) %>%
   mutate(
     # count number of triggered flags per respondent
